@@ -1,36 +1,35 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Tabs } from "expo-router";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { Colors } from "./../../constants/Colors";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-      }}>
+        tabBarActiveTintColor: Colors.PRIMARY,
+      }}
+    >
       <Tabs.Screen
-        name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+          tabBarLabel: "Główna",
+          
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="home" color={color} size={24} />
           ),
         }}
+        name="home"
       />
       <Tabs.Screen
-        name="explore"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+          tabBarLabel: "Komunikacja miejska",
+          
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="bus" color={color} size={24} />
           ),
         }}
+        name="ztm"
+        
       />
     </Tabs>
   );

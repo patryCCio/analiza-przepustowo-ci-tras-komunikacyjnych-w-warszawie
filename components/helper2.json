@@ -1,0 +1,166 @@
+[
+  {
+    "id": 1,
+    "name": "Bemowo",
+    "pin_latitude": 52.241194133814794,
+    "pin_longitude": 20.911115798468742,
+    "population_density": 5178,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 2,
+    "name": "Wola",
+    "pin_latitude": 52.23306857759133,
+    "pin_longitude": 20.95681940686419,
+    "population_density": 7805,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 3,
+    "name": "Ochota",
+    "pin_latitude": 52.21027239801556,
+    "pin_longitude": 20.970992303368426,
+    "population_density": 8164,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 4,
+    "name": "Śródmieście",
+    "pin_latitude": 52.22968288478936,
+    "pin_longitude": 21.011981728568458,
+    "population_density": 6293,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 5,
+    "name": "Mokotów",
+    "pin_latitude": 52.192437137699535,
+    "pin_longitude": 21.04222197232121,
+    "population_density": 6387,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 6,
+    "name": "Włochy",
+    "pin_latitude": 52.17913523146612,
+    "pin_longitude": 20.95152817068608,
+    "population_density": 1751,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 7,
+    "name": "Ursus",
+    "pin_latitude": 52.19494167863636,
+    "pin_longitude": 20.883072600501173,
+    "population_density": 7441,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "name": "Bielany",
+    "id": 8,
+    "pin_latitude": 52.29283591075975,
+    "pin_longitude": 20.928457813423798,
+    "population_density": 4064,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 9,
+    "name": "Żoliborz",
+    "pin_latitude": 52.26961150383336,
+    "pin_longitude": 20.98111984862032,
+    "population_density": 6921,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 10,
+    "name": "Praga-Południe",
+    "pin_latitude": 52.24170681611095,
+    "pin_longitude": 21.084235593976047,
+    "population_density": 8303,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 11,
+    "name": "Praga-Północ",
+    "pin_latitude": 52.26311763395971,
+    "pin_longitude": 21.02828401823001,
+    "population_density": 5273,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 12,
+    "name": "Targówek",
+    "pin_latitude": 52.28184206565032,
+    "pin_longitude": 21.062763638087155,
+    "population_density": 5058,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 13,
+    "name": "Rembertów",
+    "pin_latitude": 52.26324218102785,
+    "pin_longitude": 21.147185530419947,
+    "population_density": 1286,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 14,
+    "name": "Ursynów",
+    "pin_longitude": 21.027330954805286,
+    "pin_latitude": 52.13737231109017,
+    "population_density": 3420,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 15,
+    "name": "Wilanów",
+    "pin_latitude": 52.1564625136324,
+    "pin_longitude": 21.110806106326184,
+    "population_density": 1429,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+
+  {
+    "id": 16,
+    "name": "Białołęka",
+    "pin_latitude": 52.32883674939747,
+    "pin_longitude": 20.99891929455988,
+    "population_density": 2175,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+
+  {
+    "id": 17,
+    "name": "Wesoła",
+    "pin_latitude": 52.23230760205531,
+    "pin_longitude": 21.220656785936818,
+    "population_density": 1161,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  },
+  {
+    "id": 18,
+    "name": "Wawer",
+    "pin_latitude": 52.195577358175576,
+    "pin_longitude": 21.1798130713931,
+    "population_density": 1110,
+    "update_date": "2023-12-31",
+    "warsaw_population": 1861599	
+  }
+]
