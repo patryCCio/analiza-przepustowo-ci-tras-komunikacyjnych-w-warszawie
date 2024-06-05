@@ -27,7 +27,7 @@ const CardSearch = () => {
 
   const [searchResult, setSearchResult] = useState([]);
 
-  const { getLocation } = useContext(MapContext);
+  const { getLocation, getRoutesNewData } = useContext(MapContext);
 
   const dispatch = useDispatch();
   const { isRouted } = useSelector((state) => state.root.layers);
@@ -97,27 +97,14 @@ const CardSearch = () => {
     dispatch(setStartLocation({ longitude: longFrom, latitude: latFrom }));
     dispatch(setEndLocation({ longitude: longTo, latitude: latTo }));
 
-    const string =
-      process.env.EXPO_PUBLIC_API_OSRM +
-      `${longFrom},${latFrom};${longTo},${latTo}?overview=full&geometries=geojson&steps=true`;
+    
 
     const coords = [
       { longitude: longFrom, latitude: latFrom },
       { longitude: longTo, latitude: latTo },
     ];
 
-    api.get(string).then((r) => {
-      if (
-        r.data.routes &&
-        r.data.routes &&
-        r.data.routes.length > 0 &&
-        r.data.routes[0].geometry &&
-        r.data.routes[0].geometry.coordinates
-      ) {
-        dispatch(setRoutes(r.data.routes[0].geometry.coordinates));
-      }
-    });
-
+    dispatch(setOtherLocation({choice: "locationActive", data: true}))
     dispatch(setOtherLayers({ choice: "route", data: true }));
     fitToCoords(coords);
   };

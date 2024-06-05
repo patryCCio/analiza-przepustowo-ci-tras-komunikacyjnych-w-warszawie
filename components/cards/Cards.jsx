@@ -12,40 +12,34 @@ import { useDispatch, useSelector } from "react-redux";
 import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 import CardRide from "./CardRide";
+import Entypo from "@expo/vector-icons/Entypo";
 
-const Cards = ({ startIntervalMain, stopInterval, startInterval }) => {
-  const { fitToCoordsHigher } = useContext(MapContext);
-
+const Cards = ({ stopIntervalMain, startIntervalMain }) => {
   const { isSearch, isInfo, isSettings, isRouted } = useSelector(
     (state) => state.root.layers
   );
 
-  const { followGPS, wantToShareLocation, location } = useSelector(
+  const { followGPS, isLocationActive } = useSelector(
     (state) => state.root.location
   );
   const { isRide } = useSelector((state) => state.root.routes);
 
   const dispatch = useDispatch();
 
+  const handlePressFollow = () => {
+    dispatch(setOtherLocation({ data: !followGPS, choice: "follow" }));
+  };
+
   const handlePressLocalization = () => {
-    dispatch(setOtherLayers({ data: false, choice: "search" }));
-    dispatch(setOtherLayers({ data: false, choice: "info" }));
-    dispatch(setOtherLayers({ data: false, choice: "settings" }));
-    startIntervalMain();
 
-    if (!wantToShareLocation) {
-      dispatch(setOtherLocation({ choice: "share", data: true }));
-      dispatch(setOtherLocation({ choice: "follow", data: true }));
+
+    if (isLocationActive) {
+      stopIntervalMain();
     } else {
-      if (!followGPS && location) {
-        fitToCoordsHigher({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        });
-      }
-
-      dispatch(setOtherLocation({ choice: "follow", data: !followGPS }));
+      startIntervalMain();
     }
+
+    dispatch(setOtherLocation({ choice: "locationActive", data: !isLocationActive }));
   };
 
   const handlePressSearch = () => {
@@ -74,19 +68,38 @@ const Cards = ({ startIntervalMain, stopInterval, startInterval }) => {
             justifyContent: "flex-end",
           }}
         >
+          {isLocationActive && (
+            <TouchableOpacity onPress={handlePressFollow}>
+              <View
+                style={[
+                  globalStyles.cardButtons,
+                  {
+                    backgroundColor: followGPS ? Colors.PRIMARY : "white",
+                  },
+                ]}
+              >
+                <Entypo
+                  name="location-pin"
+                  size={24}
+                  color={followGPS ? "white" : Colors.PRIMARY}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity onPress={handlePressLocalization}>
             <View
               style={[
                 globalStyles.cardButtons,
                 {
-                  backgroundColor: followGPS ? Colors.PRIMARY : "white",
+                  backgroundColor: isLocationActive ? Colors.PRIMARY : "white",
                 },
               ]}
             >
               <MaterialIcons
                 name="location-searching"
                 size={24}
-                color={followGPS ? "white" : Colors.PRIMARY}
+                color={isLocationActive ? "white" : Colors.PRIMARY}
               />
             </View>
           </TouchableOpacity>
@@ -130,8 +143,8 @@ const Cards = ({ startIntervalMain, stopInterval, startInterval }) => {
       {isInfo && !isRouted && <CardInfo />}
       {isSettings && !isRouted && <CardSettings />}
       {isSearch && !isRouted && !isRide && <CardSearch />}
-      {isRouted && <CardRouted startInterval={startInterval} />}
-      {isRide && <CardRide stopInterval={stopInterval} />}
+      {isRouted && <CardRouted />}
+      {isRide && <CardRide />}
     </>
   );
 };

@@ -2,6 +2,8 @@ import { createContext, useRef, useState } from "react";
 import { setInfoMessage, setOtherLayers } from "./redux/reducers/layersSlice";
 import { useDispatch } from "react-redux";
 import * as Location from "expo-location";
+import api from "../api/api";
+import { setRoutes } from "./redux/reducers/routesSlice";
 
 export const MapContext = createContext();
 
@@ -68,61 +70,22 @@ export const MapContextProvider = ({ children }) => {
     mapRef.current.fitToCoordinates(coords);
   };
 
-  const fitToCoordsHigherSpeed = (data, speed) => {
-    if (speed < 5) {
-      mapRef.current.fitToCoordinates({
-        latitude: data.latitude,
-        longitude: data.longitude,
-      });
-    } else if (speed >= 5 && speed < 40) {
-      const coords = [
-        {
-          latitude: data.latitude,
-          longitude: data.longitude,
-        },
-        {
-          latitude: data.latitude + 0.001,
-          longitude: data.longitude - 0.001,
-        },
-        {
-          latitude: data.latitude - 0.001,
-          longitude: data.longitude - 0.001,
-        },
-        {
-          latitude: data.latitude + 0.001,
-          longitude: data.longitude + 0.001,
-        },
-        {
-          latitude: data.latitude - 0.001,
-          longitude: data.longitude + 0.001,
-        },
-      ];
-      mapRef.current.fitToCoordinates(coords);
-    } else if (speed >= 40 && speed < 100) {
-      const coords = [
-        {
-          latitude: data.latitude,
-          longitude: data.longitude,
-        },
-        {
-          latitude: data.latitude + 0.003,
-          longitude: data.longitude - 0.003,
-        },
-        {
-          latitude: data.latitude - 0.003,
-          longitude: data.longitude - 0.003,
-        },
-        {
-          latitude: data.latitude + 0.003,
-          longitude: data.longitude + 0.003,
-        },
-        {
-          latitude: data.latitude - 0.003,
-          longitude: data.longitude + 0.003,
-        },
-      ];
-      mapRef.current.fitToCoordinates(coords);
-    }
+  const getRoutesNewData = (dispatch, longFrom, latFrom, longTo, latTo) => {
+    const string =
+      process.env.EXPO_PUBLIC_API_OSRM +
+      `${longFrom},${latFrom};${longTo},${latTo}?overview=full&geometries=geojson&steps=true`;
+
+    api.get(string).then((r) => {
+      if (
+        r.data.routes &&
+        r.data.routes &&
+        r.data.routes.length > 0 &&
+        r.data.routes[0].geometry &&
+        r.data.routes[0].geometry.coordinates
+      ) {
+        dispatch(setRoutes(r.data.routes[0].geometry.coordinates));
+      }
+    });
   };
 
   return (
@@ -135,7 +98,7 @@ export const MapContextProvider = ({ children }) => {
         fitToCoords,
         hideAll,
         getLocation,
-        fitToCoordsHigherSpeed,
+        getRoutesNewData,
       }}
     >
       {children}

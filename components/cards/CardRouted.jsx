@@ -14,7 +14,7 @@ import {
 } from "../../context/redux/reducers/routesSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 
-const CardRouted = ({ startInterval }) => {
+const CardRouted = () => {
   const { hideAll } = useContext(MapContext);
   const dispatch = useDispatch();
 
@@ -30,7 +30,6 @@ const CardRouted = ({ startInterval }) => {
     dispatch(setOtherRoutes({ choice: "ride", data: true }));
     dispatch(setOtherLocation({ choice: "follow", data: true }));
     dispatch(setOtherLocation({ choice: "share", data: true }));
-    startInterval();
   };
 
   return (

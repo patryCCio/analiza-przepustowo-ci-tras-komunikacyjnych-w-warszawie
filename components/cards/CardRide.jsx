@@ -12,7 +12,7 @@ import {
 } from "../../context/redux/reducers/routesSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 
-const CardRide = ({ stopInterval }) => {
+const CardRide = () => {
   const { hideAll } = useContext(MapContext);
   const dispatch = useDispatch();
 

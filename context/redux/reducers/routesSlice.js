@@ -7,6 +7,7 @@ export const routesSlice = createSlice({
     startLocation: null,
     endLocation: null,
     isRide: false,
+    routesCount: 0,
   },
 
   reducers: {
@@ -19,7 +20,9 @@ export const routesSlice = createSlice({
     setEndLocation: (state, action) => {
       state.endLocation = action.payload;
     },
-
+    setRoutesCount: (state, action) => {
+      state.routesCount = action.payload;
+    },
     setOtherRoutes: (state, action) => {
       if (action.payload.choice == "ride") {
         state.isRide = action.payload.data;
@@ -28,6 +31,11 @@ export const routesSlice = createSlice({
   },
 });
 
-export const { setRoutes, setEndLocation, setStartLocation, setOtherRoutes } =
-  routesSlice.actions;
+export const {
+  setRoutesCount,
+  setRoutes,
+  setEndLocation,
+  setStartLocation,
+  setOtherRoutes,
+} = routesSlice.actions;
 export default routesSlice.reducer;
