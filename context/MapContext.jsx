@@ -1,45 +1,40 @@
 import { createContext, useRef, useState } from "react";
+import { setInfoMessage, setOtherLayers } from "./redux/reducers/layersSlice";
+import { useDispatch } from "react-redux";
+import * as Location from "expo-location";
 
 export const MapContext = createContext();
 
 export const MapContextProvider = ({ children }) => {
-  // cards
-  const [isVisibleSearch, setIsVisibleSearch] = useState(false);
-  const [isVisibleInfo, setIsVisibleInfo] = useState(false);
-  const [isVisibleSettings, setIsVisibleSettings] = useState(false);
-  const [isRouted, setIsRouted] = useState(false);
-  // ===
-
-  const [infoMessage, setInfoMessage] = useState("");
-  const [location, setLocation] = useState(null);
-  const [wantToShareLocation, setWantToShareLocation] = useState(false);
-
-  const [followLocation, setFollowLocation] = useState(false);
-
-  // layers
-  const [showTrafficFlow, setShowTrafficFlow] = useState(false);
-  const [showStops, setShowStops] = useState(false);
-
   const mapRef = useRef(null);
-
   const [region, setRegion] = useState({
     latitude: 52.2297,
     longitude: 21.0122,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [stops, setStops] = useState([]);
 
-  const [routeCoordinates, setRouteCoordinates] = useState([]);
-  const [startLocation, setStartLocation] = useState(null);
-  const [endLocation, setEndLocation] = useState(null);
+  const dispatch = useDispatch();
 
   const hideAll = () => {
-    setIsVisibleSettings(false);
-    setIsVisibleInfo(false);
-    setIsVisibleSearch(false);
-    setInfoMessage(null);
-    setIsRouted(false);
+    dispatch(setOtherLayers({ data: false, choice: "search" }));
+    dispatch(setOtherLayers({ data: false, choice: "info" }));
+    dispatch(setOtherLayers({ data: false, choice: "settings" }));
+    dispatch(setOtherLayers({ data: false, choice: "settings" }));
+    dispatch(setOtherLayers({ data: false, choice: "route" }));
+    dispatch(setInfoMessage(null));
+  };
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied");
+      return;
+    }
+
+    let dd = await Location.getCurrentPositionAsync({});
+
+    return dd;
   };
 
   const fitToCoords = (coords) => {
@@ -73,46 +68,74 @@ export const MapContextProvider = ({ children }) => {
     mapRef.current.fitToCoordinates(coords);
   };
 
+  const fitToCoordsHigherSpeed = (data, speed) => {
+    if (speed < 5) {
+      mapRef.current.fitToCoordinates({
+        latitude: data.latitude,
+        longitude: data.longitude,
+      });
+    } else if (speed >= 5 && speed < 40) {
+      const coords = [
+        {
+          latitude: data.latitude,
+          longitude: data.longitude,
+        },
+        {
+          latitude: data.latitude + 0.001,
+          longitude: data.longitude - 0.001,
+        },
+        {
+          latitude: data.latitude - 0.001,
+          longitude: data.longitude - 0.001,
+        },
+        {
+          latitude: data.latitude + 0.001,
+          longitude: data.longitude + 0.001,
+        },
+        {
+          latitude: data.latitude - 0.001,
+          longitude: data.longitude + 0.001,
+        },
+      ];
+      mapRef.current.fitToCoordinates(coords);
+    } else if (speed >= 40 && speed < 100) {
+      const coords = [
+        {
+          latitude: data.latitude,
+          longitude: data.longitude,
+        },
+        {
+          latitude: data.latitude + 0.003,
+          longitude: data.longitude - 0.003,
+        },
+        {
+          latitude: data.latitude - 0.003,
+          longitude: data.longitude - 0.003,
+        },
+        {
+          latitude: data.latitude + 0.003,
+          longitude: data.longitude + 0.003,
+        },
+        {
+          latitude: data.latitude - 0.003,
+          longitude: data.longitude + 0.003,
+        },
+      ];
+      mapRef.current.fitToCoordinates(coords);
+    }
+  };
+
   return (
     <MapContext.Provider
       value={{
-        isVisibleSearch,
-        setIsVisibleSearch,
-        stops,
-        setStops,
         mapRef,
-        region,
         setRegion,
-        infoMessage,
-        setInfoMessage,
-        isVisibleSettings,
-        setIsVisibleSettings,
-        fitToCoords,
-        isVisibleInfo,
-        setIsVisibleInfo,
-        hideAll,
-        showStops,
-        setShowStops,
-        showTrafficFlow,
-        setShowTrafficFlow,
-
-        setEndLocation,
-        endLocation,
-        startLocation,
-        setStartLocation,
-        routeCoordinates,
-        setRouteCoordinates,
-
-        isRouted,
-        setIsRouted,
-
-        wantToShareLocation,
-        setWantToShareLocation,
-        location,
-        setLocation,
+        region,
         fitToCoordsHigher,
-        followLocation,
-        setFollowLocation,
+        fitToCoords,
+        hideAll,
+        getLocation,
+        fitToCoordsHigherSpeed,
       }}
     >
       {children}

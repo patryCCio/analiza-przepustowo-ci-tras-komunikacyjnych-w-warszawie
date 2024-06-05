@@ -1,53 +1,35 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { globalStyles } from "../../constants/Globals";
 import { useContext } from "react";
 import { MapContext } from "../../context/MapContext";
-import { Feather } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 import { Button } from "react-native-paper";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   setEndLocation,
-  setOtherRoutes,
   setRoutes,
   setStartLocation,
 } from "../../context/redux/reducers/routesSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 
-const CardRouted = ({ startInterval }) => {
+const CardRide = ({ stopInterval }) => {
   const { hideAll } = useContext(MapContext);
   const dispatch = useDispatch();
 
-  const cancelTrace = () => {
+  const deleteTrace = () => {
     hideAll();
-    dispatch(setEndLocation(null));
+    dispatch(setOtherLocation({ choice: "ride", data: false }));
+    dispatch(setOtherLocation({ choice: "follow", data: false }));
+    dispatch(setOtherLocation({ choice: "share", data: false }));
     dispatch(setStartLocation(null));
+    dispatch(setEndLocation(null));
     dispatch(setRoutes([]));
-  };
 
-  const acceptTrace = () => {
-    hideAll();
-    dispatch(setOtherRoutes({ choice: "ride", data: true }));
-    dispatch(setOtherLocation({ choice: "follow", data: true }));
-    dispatch(setOtherLocation({ choice: "share", data: true }));
-    startInterval();
+    stopInterval();
   };
 
   return (
-    <View style={globalStyles.card2}>
-      <TouchableOpacity onPress={cancelTrace}>
-        <Feather
-          name="x"
-          size={24}
-          style={{
-            position: "absolute",
-            right: 5,
-            top: 5,
-          }}
-          color={Colors.PRIMARY}
-        />
-      </TouchableOpacity>
-
+    <View style={globalStyles.card2Top}>
       <View
         style={{
           flexDirection: "row",
@@ -61,11 +43,12 @@ const CardRouted = ({ startInterval }) => {
             color: "black",
             fontSize: 20,
             marginBottom: 8,
+            paddingTop: 20,
             marginLeft: 8,
             fontFamily: "outfit-medium",
           }}
         >
-          Trasa
+          Przewidywany czas podróży
         </Text>
       </View>
 
@@ -78,21 +61,25 @@ const CardRouted = ({ startInterval }) => {
       >
         <Button
           mode="contained"
-          onPress={cancelTrace}
+          onPress={deleteTrace}
           buttonColor={Colors.PRIMARY}
         >
-          Anuluj
+          Zakończ trasę
         </Button>
-        <Button
-          mode="contained"
-          onPress={acceptTrace}
-          buttonColor={Colors.PRIMARY}
+        <Text
+          style={{
+            color: Colors.SECOND,
+            fontFamily: "outfit-bold",
+            fontSize: 26,
+            textAlign: "center",
+            flex: 1,
+          }}
         >
-          Prowadź
-        </Button>
+          30 min
+        </Text>
       </View>
     </View>
   );
 };
 
-export default CardRouted;
+export default CardRide;

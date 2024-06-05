@@ -8,45 +8,56 @@ import { MapContext } from "../../context/MapContext";
 import CardSettings from "./CardSettings";
 import CardSearch from "./CardSearch";
 import CardRouted from "./CardRouted";
+import { useDispatch, useSelector } from "react-redux";
+import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
+import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
+import CardRide from "./CardRide";
 
-const Cards = () => {
-  const {
-    isVisibleSearch,
-    isVisibleSettings,
-    isVisibleInfo,
-    setIsVisibleSearch,
-    setIsVisibleSettings,
-    setIsVisibleInfo,
-    isRouted,
-    wantToShareLocation,
-    setWantToShareLocation,
-    location,
-    fitToCoordsHigher,
-    setFollowLocation,
-    followLocation,
-  } = useContext(MapContext);
+const Cards = ({ startIntervalMain, stopInterval, startInterval }) => {
+  const { fitToCoordsHigher } = useContext(MapContext);
+
+  const { isSearch, isInfo, isSettings, isRouted } = useSelector(
+    (state) => state.root.layers
+  );
+
+  const { followGPS, wantToShareLocation, location } = useSelector(
+    (state) => state.root.location
+  );
+  const { isRide } = useSelector((state) => state.root.routes);
+
+  const dispatch = useDispatch();
 
   const handlePressLocalization = () => {
-    setIsVisibleSearch(false);
-    setIsVisibleInfo(false);
-    setIsVisibleSettings(false);
-    setFollowLocation(!followLocation);
+    dispatch(setOtherLayers({ data: false, choice: "search" }));
+    dispatch(setOtherLayers({ data: false, choice: "info" }));
+    dispatch(setOtherLayers({ data: false, choice: "settings" }));
+    startIntervalMain();
 
     if (!wantToShareLocation) {
-      setWantToShareLocation(true);
+      dispatch(setOtherLocation({ choice: "share", data: true }));
+      dispatch(setOtherLocation({ choice: "follow", data: true }));
+    } else {
+      if (!followGPS && location) {
+        fitToCoordsHigher({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      }
+
+      dispatch(setOtherLocation({ choice: "follow", data: !followGPS }));
     }
   };
 
   const handlePressSearch = () => {
-    setIsVisibleSearch(!isVisibleSearch);
-    setIsVisibleInfo(false);
-    setIsVisibleSettings(false);
+    dispatch(setOtherLayers({ data: !isSearch, choice: "search" }));
+    dispatch(setOtherLayers({ data: false, choice: "info" }));
+    dispatch(setOtherLayers({ data: false, choice: "settings" }));
   };
 
   const handlePressSettings = () => {
-    setIsVisibleSearch(false);
-    setIsVisibleInfo(false);
-    setIsVisibleSettings(!isVisibleSettings);
+    dispatch(setOtherLayers({ data: false, choice: "search" }));
+    dispatch(setOtherLayers({ data: false, choice: "info" }));
+    dispatch(setOtherLayers({ data: !isSettings, choice: "settings" }));
   };
 
   return (
@@ -68,14 +79,14 @@ const Cards = () => {
               style={[
                 globalStyles.cardButtons,
                 {
-                  backgroundColor: followLocation ? Colors.PRIMARY : "white",
+                  backgroundColor: followGPS ? Colors.PRIMARY : "white",
                 },
               ]}
             >
               <MaterialIcons
                 name="location-searching"
                 size={24}
-                color={followLocation ? "white" : Colors.PRIMARY}
+                color={followGPS ? "white" : Colors.PRIMARY}
               />
             </View>
           </TouchableOpacity>
@@ -84,40 +95,43 @@ const Cards = () => {
               style={[
                 globalStyles.cardButtons,
                 {
-                  backgroundColor: isVisibleSettings ? Colors.PRIMARY : "white",
+                  backgroundColor: isSettings ? Colors.PRIMARY : "white",
                 },
               ]}
             >
               <MaterialIcons
                 name="settings"
                 size={24}
-                color={isVisibleSettings ? "white" : Colors.PRIMARY}
+                color={isSettings ? "white" : Colors.PRIMARY}
               />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handlePressSearch}>
-            <View
-              style={[
-                globalStyles.cardButtons,
-                {
-                  backgroundColor: isVisibleSearch ? Colors.PRIMARY : "white",
-                },
-              ]}
-            >
-              <MaterialIcons
-                name="search"
-                size={24}
-                color={isVisibleSearch ? "white" : Colors.PRIMARY}
-              />
-            </View>
-          </TouchableOpacity>
+          {!isRide && (
+            <TouchableOpacity onPress={handlePressSearch}>
+              <View
+                style={[
+                  globalStyles.cardButtons,
+                  {
+                    backgroundColor: isSearch ? Colors.PRIMARY : "white",
+                  },
+                ]}
+              >
+                <MaterialIcons
+                  name="search"
+                  size={24}
+                  color={isSearch ? "white" : Colors.PRIMARY}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
-      {isVisibleInfo && !isRouted && <CardInfo />}
-      {isVisibleSettings && !isRouted && <CardSettings />}
-      {isVisibleSearch && !isRouted && <CardSearch />}
-      {isRouted && <CardRouted />}
+      {isInfo && !isRouted && <CardInfo />}
+      {isSettings && !isRouted && <CardSettings />}
+      {isSearch && !isRouted && !isRide && <CardSearch />}
+      {isRouted && <CardRouted startInterval={startInterval} />}
+      {isRide && <CardRide stopInterval={stopInterval} />}
     </>
   );
 };

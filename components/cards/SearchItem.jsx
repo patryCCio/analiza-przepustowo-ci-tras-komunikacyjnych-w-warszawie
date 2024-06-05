@@ -1,7 +1,6 @@
-import { Text, View } from "react-native";
-import { Colors } from "../../constants/Colors";
+import { Text } from "react-native";
 
-const SearchItem = ({ item, handleCheckPress, type }) => {
+const SearchItem = ({ item, handleCheckPress }) => {
   return (
     <Text
       style={{
@@ -9,7 +8,7 @@ const SearchItem = ({ item, handleCheckPress, type }) => {
         padding: 5,
         fontFamily: "outfit-medium",
       }}
-      onPress={() => handleCheckPress(item, type)}
+      onPress={() => handleCheckPress(item)}
     >
       {item.display_name}
     </Text>

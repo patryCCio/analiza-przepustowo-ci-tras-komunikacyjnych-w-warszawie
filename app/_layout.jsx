@@ -11,16 +11,17 @@ export default function RootLayout() {
     "outfit-bold": require("./../assets/fonts/Outfit-Bold.ttf"),
   });
   return (
-    <>
+    <Provider store={store}>
       <MapContextProvider>
         <Stack
           screenOptions={{
             headerShown: false,
           }}
+          initialRouteName="home"
         >
           <Stack.Screen name="(tabs)" />
         </Stack>
       </MapContextProvider>
-    </>
+    </Provider>
   );
 }

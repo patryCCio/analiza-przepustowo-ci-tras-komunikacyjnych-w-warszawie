@@ -2,21 +2,42 @@ import { useContext, useEffect, useState } from "react";
 import { MapContext } from "../../context/MapContext";
 import { Marker } from "react-native-maps";
 import { Colors } from "../../constants/Colors";
+import { useDispatch, useSelector } from "react-redux";
+import api from "../../api/api";
+import { setStops } from "../../context/redux/reducers/callsSlice";
+import {
+  setOtherLayers,
+  setInfoMessage,
+} from "../../context/redux/reducers/layersSlice";
 
 const Markers = () => {
-  const {
-    fitToCoordsHigher,
-    region,
-    stops,
-    setIsVisibleInfo,
-    setIsVisibleSettings,
-    setInfoMessage,
-    showStops,
-  } = useContext(MapContext);
+  const { fitToCoordsHigher, region } = useContext(MapContext);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
 
+  const { stops } = useSelector((state) => state.root.data);
+  const { isStopsMap } = useSelector((state) => state.root.layers);
+  const dispatch = useDispatch();
+
+  const getStops = async () => {
+    if (!isStopsMap) return;
+    if (stops.length != 0) return;
+    try {
+      const result = await api.get(
+        process.env.EXPO_PUBLIC_API_URL + "timetables/timetable-info-all/stops"
+      );
+
+      dispatch(setStops(result.data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getStops();
+  }, [isStopsMap]);
+
   const filteredMarkers = () => {
-    if (showStops) {
+    if (isStopsMap) {
       let zoomLevel =
         Math.log2(360 / Math.max(region.latitudeDelta, region.longitudeDelta)) +
         1;
@@ -63,12 +84,12 @@ const Markers = () => {
 
   useEffect(() => {
     filteredMarkers();
-  }, [region, showStops]);
+  }, [region, isStopsMap]);
 
   const showInfo = (marker) => {
-    setInfoMessage(marker);
-    setIsVisibleInfo(true);
-    setIsVisibleSettings(false);
+    dispatch(setInfoMessage(marker));
+    dispatch(setOtherLayers({ choice: "info", data: true }));
+    dispatch(setOtherLayers({ choice: "settings", data: false }));
 
     fitToCoordsHigher({
       latitude: marker.latitude,

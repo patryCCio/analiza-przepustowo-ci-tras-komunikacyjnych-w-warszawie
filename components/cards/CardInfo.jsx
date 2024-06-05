@@ -8,9 +8,11 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useContext } from "react";
 import { MapContext } from "../../context/MapContext";
+import { useSelector } from "react-redux";
 
 const CardInfo = () => {
-  const { hideAll, fitToCoords, infoMessage } = useContext(MapContext);
+  const { hideAll, fitToCoords } = useContext(MapContext);
+  const { infoMessage } = useSelector((state) => state.root.layers);
 
   const backToCoords = () => {
     const coords = [

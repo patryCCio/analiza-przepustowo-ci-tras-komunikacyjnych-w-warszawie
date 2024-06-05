@@ -7,37 +7,34 @@ import { useContext, useEffect, useState } from "react";
 import { MapContext } from "../../context/MapContext";
 import axios from "axios";
 import SearchItem from "./SearchItem";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setEndLocation,
+  setRoutes,
+  setStartLocation,
+} from "../../context/redux/reducers/routesSlice";
+import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
+import api from "../../api/api";
+import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 
 const CardSearch = () => {
-  const {
-    hideAll,
-    setEndLocation,
-    setStartLocation,
-    setRouteCoordinates,
-    setIsRouted,
-    fitToCoords,
-  } = useContext(MapContext);
+  const { hideAll, fitToCoords } = useContext(MapContext);
 
-  const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [type, setType] = useState(null);
 
-  const [checkFrom, setCheckFrom] = useState(null);
   const [checkTo, setCheckTo] = useState(null);
 
   const [searchResult, setSearchResult] = useState([]);
 
-  useEffect(() => {
-    if (from != "") {
-      if (checkFrom) {
-        setType(null);
-        setSearchResult([]);
-      } else {
-        setType("from");
-        checkQueryFrom();
-      }
-    }
+  const { getLocation } = useContext(MapContext);
 
+  const dispatch = useDispatch();
+  const { isRouted } = useSelector((state) => state.root.layers);
+  const { location } = useSelector((state) => state.root.location);
+  const { routes } = useSelector((state) => state.root.routes);
+
+  useEffect(() => {
     if (to != "") {
       if (checkTo) {
         setType(null);
@@ -47,27 +44,12 @@ const CardSearch = () => {
         checkQueryTo();
       }
     }
-  }, [from, to]);
-
-  const checkQueryFrom = async () => {
-    if (from == "") return;
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${from}&addressdetails=1&countrycodes=pl`;
-    const data = await axios.get(nominatimUrl);
-    if (data.data) {
-      setSearchResult(data.data);
-    }
-  };
+  }, [to]);
 
   const clearCheck = (type) => {
-    if (type == "from") {
-      setCheckFrom(null);
-      setFrom("");
-      setType(null);
-    } else {
-      setCheckTo(null);
-      setTo("");
-      setType(null);
-    }
+    setCheckTo(null);
+    setTo("");
+    setType(null);
   };
 
   const checkQueryTo = async () => {
@@ -81,34 +63,39 @@ const CardSearch = () => {
   };
 
   const handleCheckPress = (item, type) => {
-    if (type == "from") {
-      setFrom(item.display_name);
-      setCheckFrom(item);
-    } else {
-      setTo(item.display_name);
-      setCheckTo(item);
-    }
+    setTo(item.display_name);
+    setCheckTo(item);
+
     setSearchResult([]);
     setType(null);
   };
 
-  const getRoute = () => {
-    if (from == "" || to == "" || !checkFrom || !checkTo) return;
+  const getRoute = async () => {
+    if (to == "" || !checkTo) return;
 
-    const latFrom = parseFloat(checkFrom.lat);
-    const longFrom = parseFloat(checkFrom.lon);
-    const latTo = parseFloat(checkTo.lat);
-    const longTo = parseFloat(checkTo.lon);
+    let latFrom;
+    let longFrom;
+    let latTo;
+    let longTo;
 
-    setStartLocation({
-      longitude: longFrom,
-      latitude: latFrom,
-    });
+    if (!location) {
+      let dd = await getLocation();
+      if (!dd) {
+        return;
+      } else {
+        dispatch(setOtherLocation({ choice: "location", data: dd }));
+        latFrom = parseFloat(dd.coords.latitude);
+        longFrom = parseFloat(dd.coords.longitude);
+      }
+    } else {
+      latFrom = parseFloat(location.coords.latitude);
+      longFrom = parseFloat(location.coords.longitude);
+    }
+    latTo = parseFloat(checkTo.lat);
+    longTo = parseFloat(checkTo.lon);
 
-    setEndLocation({
-      longitude: longTo,
-      latitude: latTo,
-    });
+    dispatch(setStartLocation({ longitude: longFrom, latitude: latFrom }));
+    dispatch(setEndLocation({ longitude: longTo, latitude: latTo }));
 
     const string =
       process.env.EXPO_PUBLIC_API_OSRM +
@@ -119,7 +106,7 @@ const CardSearch = () => {
       { longitude: longTo, latitude: latTo },
     ];
 
-    axios.get(string).then((r) => {
+    api.get(string).then((r) => {
       if (
         r.data.routes &&
         r.data.routes &&
@@ -127,16 +114,18 @@ const CardSearch = () => {
         r.data.routes[0].geometry &&
         r.data.routes[0].geometry.coordinates
       ) {
-        setRouteCoordinates(r.data.routes[0].geometry.coordinates);
+        dispatch(setRoutes(r.data.routes[0].geometry.coordinates));
       }
     });
 
-    setIsRouted(true);
+    dispatch(setOtherLayers({ choice: "route", data: true }));
     fitToCoords(coords);
   };
 
   return (
-    <View style={[globalStyles.cardBigger]}>
+    <View
+      style={to.length > 0 ? globalStyles.cardBiggest : globalStyles.cardBigger}
+    >
       <TouchableOpacity onPress={hideAll}>
         <Feather
           name="x"
@@ -150,6 +139,18 @@ const CardSearch = () => {
         />
       </TouchableOpacity>
 
+      {to.length > 0 && (
+        <View style={globalStyles.searchListContainer2}>
+          <FlatList
+            data={searchResult}
+            refreshing={true}
+            renderItem={({ item }) => (
+              <SearchItem handleCheckPress={handleCheckPress} item={item} />
+            )}
+          />
+        </View>
+      )}
+
       <View style={{ paddingHorizontal: 30 }}>
         <View
           style={{
@@ -157,13 +158,14 @@ const CardSearch = () => {
             alignItems: "flex-end",
             gap: 10,
             marginBottom: 4,
+            justifyContent: "center",
           }}
         >
           <Text
             style={{
               color: "black",
               fontSize: 20,
-              marginBottom: 8,
+              marginHorizontal: 8,
               marginLeft: 8,
               fontFamily: "outfit-medium",
             }}
@@ -176,46 +178,6 @@ const CardSearch = () => {
             gap: 5,
           }}
         >
-          <View>
-            {checkFrom && (
-              <Feather
-                name="x"
-                size={24}
-                style={{
-                  position: "absolute",
-                  right: -25,
-                  top: 20,
-                }}
-                color={Colors.PRIMARY}
-                onPress={() => clearCheck("from")}
-              />
-            )}
-            <TextInput
-              label="Z"
-              mode="outlined"
-              value={from}
-              onChangeText={(from) => {
-                if (!checkFrom) {
-                  setFrom(from);
-                }
-              }}
-            />
-            {type == "from" && (
-              <View style={globalStyles.searchListContainer}>
-                <FlatList
-                  data={searchResult}
-                  refreshing={true}
-                  renderItem={({ item }) => (
-                    <SearchItem
-                      item={item}
-                      handleCheckPress={handleCheckPress}
-                      type="from"
-                    />
-                  )}
-                />
-              </View>
-            )}
-          </View>
           <View>
             <TextInput
               label="Do"
@@ -240,21 +202,6 @@ const CardSearch = () => {
                 color={Colors.PRIMARY}
                 onPress={() => clearCheck("to")}
               />
-            )}
-            {type == "to" && (
-              <View style={globalStyles.searchListContainer2}>
-                <FlatList
-                  data={searchResult}
-                  refreshing={true}
-                  renderItem={({ item }) => (
-                    <SearchItem
-                      handleCheckPress={handleCheckPress}
-                      item={item}
-                      type="to"
-                    />
-                  )}
-                />
-              </View>
             )}
           </View>
           <Button

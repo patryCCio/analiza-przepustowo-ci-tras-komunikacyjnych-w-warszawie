@@ -2,24 +2,21 @@ import { globalStyles } from "../../constants/Globals";
 import { Text, TouchableOpacity, View } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { Colors } from "@/constants/Colors";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Button, Checkbox } from "react-native-paper";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import Entypo from "@expo/vector-icons/Entypo";
+import { Checkbox } from "react-native-paper";
 import { useContext } from "react";
 import { MapContext } from "../../context/MapContext";
+import { useDispatch, useSelector } from "react-redux";
+import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
 
 const CardSettings = () => {
-  const {
-    hideAll,
-    showStops,
-    setShowStops,
-    showTrafficFlow,
-    setShowTrafficFlow,
-  } = useContext(MapContext);
+  const { hideAll } = useContext(MapContext);
+  const { isStopsMap, isTrafficFlowMap, isDistrictMap, isRouteZTMMap, } = useSelector(
+    (state) => state.root.layers
+  );
+  const dispatch = useDispatch();
 
   return (
-    <View style={globalStyles.card}>
+    <View style={globalStyles.cardBigger}>
       <TouchableOpacity onPress={hideAll}>
         <Feather
           name="x"
@@ -57,9 +54,11 @@ const CardSettings = () => {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Checkbox
               color={Colors.PRIMARY}
-              status={showStops ? "checked" : "unchecked"}
+              status={isStopsMap ? "checked" : "unchecked"}
               onPress={() => {
-                setShowStops(!showStops);
+                dispatch(
+                  setOtherLayers({ data: !isStopsMap, choice: "stopsMap" })
+                );
               }}
             />
             <Text style={{ fontFamily: "outfit" }}>Pokaż przystanki</Text>
@@ -67,10 +66,51 @@ const CardSettings = () => {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Checkbox
               color={Colors.PRIMARY}
-              status={showTrafficFlow ? "checked" : "unchecked"}
-              onPress={() => {}}
+              status={isTrafficFlowMap ? "checked" : "unchecked"}
+              onPress={() => {
+                dispatch(
+                  setOtherLayers({
+                    choice: "trafficFlowMap",
+                    data: !isTrafficFlowMap,
+                  })
+                );
+              }}
             />
-            <Text style={{ fontFamily: "outfit" }}>Pokaż przepływ ruchu</Text>
+            <Text style={{ fontFamily: "outfit" }}>
+              Pokaż prognozę ruchu (HERE TRAFFIC)
+            </Text>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Checkbox
+              color={Colors.PRIMARY}
+              status={isDistrictMap ? "checked" : "unchecked"}
+              onPress={() => {
+                dispatch(
+                  setOtherLayers({
+                    choice: "districtMap",
+                    data: !isDistrictMap,
+                  })
+                );
+              }}
+            />
+            <Text style={{ fontFamily: "outfit" }}>
+              Pokaż dzielnice Warszawy
+            </Text>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Checkbox
+              color={Colors.PRIMARY}
+              status={isRouteZTMMap ? "checked" : "unchecked"}
+              onPress={() => {
+                dispatch(
+                  setOtherLayers({
+                    choice: "routeZTMMap",
+                    data: !isRouteZTMMap,
+                  })
+                );
+              }}
+            />
+            <Text style={{ fontFamily: "outfit" }}>Pokaż trasy ZTM</Text>
           </View>
         </View>
       </View>

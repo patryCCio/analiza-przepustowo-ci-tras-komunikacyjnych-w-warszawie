@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
@@ -15,13 +16,11 @@ const ztm = () => {
     getLinesData();
   }, []);
 
-  return lines.length > 0 ? (
+  return (
     <View>
-      <Text>ZTM</Text>
-    </View>
-  ) : (
-    <View>
-      <Text>Loading</Text>
+      <Link href="ztmInfo">
+        <Text>ztmInfo</Text>
+      </Link>
     </View>
   );
 };

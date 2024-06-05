@@ -13,7 +13,7 @@ export default function TabLayout() {
       <Tabs.Screen
         options={{
           tabBarLabel: "Główna",
-          
+
           tabBarIcon: ({ color }) => (
             <FontAwesome5 name="home" color={color} size={24} />
           ),
@@ -23,13 +23,12 @@ export default function TabLayout() {
       <Tabs.Screen
         options={{
           tabBarLabel: "Komunikacja miejska",
-          
+
           tabBarIcon: ({ color }) => (
             <FontAwesome5 name="bus" color={color} size={24} />
           ),
         }}
-        name="ztm"
-        
+        name="(ztm)"
       />
     </Tabs>
   );

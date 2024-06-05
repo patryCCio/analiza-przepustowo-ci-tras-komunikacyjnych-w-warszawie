@@ -1,8 +1,20 @@
-import { configureStore } from "@reduxjs/toolkit";
-import dataReducer from "./callsSlice";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import dataReducer from "./reducers/callsSlice";
+import layersReducer from "./reducers/layersSlice";
+import locationReducer from "./reducers/locationSlice";
+import routesReducer from "./reducers/routesSlice";
 
-export default configureStore({
+const reducers = combineReducers({
+  data: dataReducer,
+  layers: layersReducer,
+  location: locationReducer,
+  routes: routesReducer
+});
+
+const store = configureStore({
   reducer: {
-    data: dataReducer
+    root: reducers,
   },
 });
+
+export default store;
