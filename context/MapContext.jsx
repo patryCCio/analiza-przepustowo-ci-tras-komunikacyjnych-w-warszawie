@@ -18,15 +18,7 @@ export const MapContextProvider = ({ children }) => {
 
   const dispatch = useDispatch();
 
-  const hideAll = () => {
-    dispatch(setOtherLayers({ data: false, choice: "search" }));
-    dispatch(setOtherLayers({ data: false, choice: "info" }));
-    dispatch(setOtherLayers({ data: false, choice: "settings" }));
-    dispatch(setOtherLayers({ data: false, choice: "settings" }));
-    dispatch(setOtherLayers({ data: false, choice: "route" }));
-    dispatch(setInfoMessage(null));
-  };
-
+  
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -35,7 +27,6 @@ export const MapContextProvider = ({ children }) => {
     }
 
     let dd = await Location.getCurrentPositionAsync({});
-
     return dd;
   };
 
@@ -70,10 +61,20 @@ export const MapContextProvider = ({ children }) => {
     mapRef.current.fitToCoordinates(coords);
   };
 
-  const getRoutesNewData = (dispatch, longFrom, latFrom, longTo, latTo) => {
-    const string =
+  const getRoutesNewData = (dispatch, coords) => {
+    let coordsStr = "";
+
+    coords.forEach((el, index) => {
+      if (index == coords.length - 1) {
+        coordsStr += el.longitude + "," + el.latitude;
+      } else {
+        coordsStr += el.longitude + "," + el.latitude + ";";
+      }
+    });
+
+    let string =
       process.env.EXPO_PUBLIC_API_OSRM +
-      `${longFrom},${latFrom};${longTo},${latTo}?overview=full&geometries=geojson&steps=true`;
+      `${coordsStr}?overview=full&geometries=geojson&steps=true`;
 
     api.get(string).then((r) => {
       if (
@@ -96,7 +97,6 @@ export const MapContextProvider = ({ children }) => {
         region,
         fitToCoordsHigher,
         fitToCoords,
-        hideAll,
         getLocation,
         getRoutesNewData,
       }}

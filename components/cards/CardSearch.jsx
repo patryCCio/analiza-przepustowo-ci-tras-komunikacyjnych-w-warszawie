@@ -10,37 +10,25 @@ import SearchItem from "./SearchItem";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setEndLocation,
-  setRoutes,
   setStartLocation,
 } from "../../context/redux/reducers/routesSlice";
-import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
-import api from "../../api/api";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 
-const CardSearch = () => {
-  const { hideAll, fitToCoords } = useContext(MapContext);
-
+const CardSearch = ({ hideAll }) => {
   const [to, setTo] = useState("");
-  const [type, setType] = useState(null);
-
   const [checkTo, setCheckTo] = useState(null);
-
   const [searchResult, setSearchResult] = useState([]);
 
-  const { getLocation, getRoutesNewData } = useContext(MapContext);
+  const { getLocation, getRoutesNewData, fitToCoords } = useContext(MapContext);
 
   const dispatch = useDispatch();
-  const { isRouted } = useSelector((state) => state.root.layers);
   const { location } = useSelector((state) => state.root.location);
-  const { routes } = useSelector((state) => state.root.routes);
 
   useEffect(() => {
     if (to != "") {
       if (checkTo) {
-        setType(null);
         setSearchResult([]);
       } else {
-        setType("to");
         checkQueryTo();
       }
     }
@@ -49,11 +37,9 @@ const CardSearch = () => {
   const clearCheck = (type) => {
     setCheckTo(null);
     setTo("");
-    setType(null);
   };
 
   const checkQueryTo = async () => {
-    setType("to");
     if (to == "") return;
     const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${to}&addressdetails=1&countrycodes=pl`;
     const data = await axios.get(nominatimUrl);
@@ -67,7 +53,6 @@ const CardSearch = () => {
     setCheckTo(item);
 
     setSearchResult([]);
-    setType(null);
   };
 
   const getRoute = async () => {
@@ -79,11 +64,13 @@ const CardSearch = () => {
     let longTo;
 
     if (!location) {
+      dispatch(setOtherLocation({ choice: "locationActive", data: true }));
       let dd = await getLocation();
       if (!dd) {
         return;
       } else {
         dispatch(setOtherLocation({ choice: "location", data: dd }));
+        dispatch(setOtherLocation({ choice: "locationActive", data: true }));
         latFrom = parseFloat(dd.coords.latitude);
         longFrom = parseFloat(dd.coords.longitude);
       }
@@ -97,15 +84,16 @@ const CardSearch = () => {
     dispatch(setStartLocation({ longitude: longFrom, latitude: latFrom }));
     dispatch(setEndLocation({ longitude: longTo, latitude: latTo }));
 
-    
 
     const coords = [
       { longitude: longFrom, latitude: latFrom },
       { longitude: longTo, latitude: latTo },
     ];
 
-    dispatch(setOtherLocation({choice: "locationActive", data: true}))
-    dispatch(setOtherLayers({ choice: "route", data: true }));
+    getRoutesNewData(dispatch, coords);
+
+    dispatch(setOtherLocation({ choice: "locationActive", data: true }));
+    dispatch(setOtherLocation({ choice: "routed", data: true }));
     fitToCoords(coords);
   };
 
@@ -191,13 +179,15 @@ const CardSearch = () => {
               />
             )}
           </View>
-          <Button
-            mode="contained"
-            style={{ backgroundColor: Colors.PRIMARY }}
-            onPress={getRoute}
-          >
-            Wyznacz trasę
-          </Button>
+          {checkTo && (
+            <Button
+              mode="contained"
+              style={{ backgroundColor: Colors.PRIMARY }}
+              onPress={getRoute}
+            >
+              Wyznacz trasę
+            </Button>
+          )}
         </View>
       </View>
     </View>

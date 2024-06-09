@@ -25,5 +25,6 @@ export const Colors = {
   },
   PRIMARY: "#7F57F2",
   SECOND: "#6b47d1",
-  THIRD: "#4085c9"
+  THIRD: "#6b6cc9",
+  FOURTH: "#c9b9fa"
 };

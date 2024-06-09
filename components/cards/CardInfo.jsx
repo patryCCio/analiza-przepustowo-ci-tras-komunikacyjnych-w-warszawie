@@ -4,15 +4,12 @@ import Feather from "@expo/vector-icons/Feather";
 import { Colors } from "@/constants/Colors";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Button } from "react-native-paper";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { MapContext } from "../../context/MapContext";
-import { useSelector } from "react-redux";
 
-const CardInfo = () => {
-  const { hideAll, fitToCoords } = useContext(MapContext);
-  const { infoMessage } = useSelector((state) => state.root.layers);
+const CardInfo = ({ routesInfo, infoMessage, hideAll }) => {
+  const { fitToCoords } = useContext(MapContext);
 
   const backToCoords = () => {
     const coords = [
@@ -38,7 +35,7 @@ const CardInfo = () => {
   };
 
   return (
-    <View style={globalStyles.card}>
+    <View style={[globalStyles.card, { height: 220 }]}>
       <TouchableOpacity onPress={hideAll}>
         <Feather
           name="x"
@@ -82,20 +79,34 @@ const CardInfo = () => {
           mode="contained"
           onPress={backToCoords}
           buttonColor={Colors.PRIMARY}
+          style={{ marginRight: 10 }}
         >
           <Entypo name="location-pin" size={20} color="white" />
         </Button>
-
-        <Button
-          icon={() => (
-            <FontAwesome5 name="info-circle" size={20} color="white" />
-          )}
-          mode="contained"
-          onPress={() => console.log("Pressed")}
-          buttonColor={Colors.PRIMARY}
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 6,
+            justifyContent: "center",
+            alignItems: "center",
+            flexWrap: "wrap",
+            flex: 1,
+          }}
         >
-          Zobacz więcej
-        </Button>
+          {routesInfo.map((el) => (
+            <Text
+              style={{
+                paddingVertical: 5,
+                paddingHorizontal: 8,
+                color: Colors.PRIMARY,
+                borderWidth: 1,
+                borderColor: Colors.PRIMARY,
+              }}
+            >
+              {el.route}
+            </Text>
+          ))}
+        </View>
       </View>
     </View>
   );

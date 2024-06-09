@@ -1,11 +1,9 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { globalStyles } from "../../constants/Globals";
-import { useContext } from "react";
-import { MapContext } from "../../context/MapContext";
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 import { Button } from "react-native-paper";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   setEndLocation,
   setOtherRoutes,
@@ -14,8 +12,7 @@ import {
 } from "../../context/redux/reducers/routesSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 
-const CardRouted = () => {
-  const { hideAll } = useContext(MapContext);
+const CardRouted = ({ hideAll }) => {
   const dispatch = useDispatch();
 
   const cancelTrace = () => {
@@ -29,7 +26,6 @@ const CardRouted = () => {
     hideAll();
     dispatch(setOtherRoutes({ choice: "ride", data: true }));
     dispatch(setOtherLocation({ choice: "follow", data: true }));
-    dispatch(setOtherLocation({ choice: "share", data: true }));
   };
 
   return (

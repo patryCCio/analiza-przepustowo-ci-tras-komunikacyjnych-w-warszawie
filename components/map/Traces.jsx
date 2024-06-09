@@ -11,8 +11,18 @@ const Traces = () => {
     <>
       {startLocation && endLocation && routes && (
         <>
-          <Marker pinColor={Colors.THIRD} description="Obecna lokalizacja" coordinate={startLocation} title="Początek" />
-          <Marker pinColor={Colors.THIRD} description="coś" coordinate={endLocation} title="Koniec" />
+          <Marker
+            pinColor={Colors.THIRD}
+            description="Obecna lokalizacja"
+            coordinate={startLocation}
+            title="Początek"
+          />
+          <Marker
+            pinColor={Colors.THIRD}
+            description="coś"
+            coordinate={endLocation}
+            title="Koniec"
+          />
           {routes && routes.length > 0 && (
             <Polyline
               coordinates={routes.map((c) => {

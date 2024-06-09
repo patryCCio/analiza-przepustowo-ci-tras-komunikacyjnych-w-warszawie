@@ -3,23 +3,28 @@ import CardInfo from "./CardInfo";
 import { View, TouchableOpacity } from "react-native";
 import { globalStyles } from "../../constants/Globals";
 import { Colors } from "../../constants/Colors";
-import { useContext, useEffect, useState } from "react";
-import { MapContext } from "../../context/MapContext";
 import CardSettings from "./CardSettings";
 import CardSearch from "./CardSearch";
 import CardRouted from "./CardRouted";
 import { useDispatch, useSelector } from "react-redux";
-import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 import CardRide from "./CardRide";
 import Entypo from "@expo/vector-icons/Entypo";
 
-const Cards = ({ stopIntervalMain, startIntervalMain }) => {
-  const { isSearch, isInfo, isSettings, isRouted } = useSelector(
-    (state) => state.root.layers
-  );
-
-  const { followGPS, isLocationActive } = useSelector(
+const Cards = ({
+  isSearch,
+  isInfo,
+  isSettings,
+  setIsSearch,
+  setIsInfo,
+  setIsSettings,
+  infoMessage,
+  stopIntervalMain,
+  startIntervalMain,
+  setInfoMessage,
+  routesInfo
+}) => {
+  const { followGPS, isLocationActive, isRouted } = useSelector(
     (state) => state.root.location
   );
   const { isRide } = useSelector((state) => state.root.routes);
@@ -30,28 +35,36 @@ const Cards = ({ stopIntervalMain, startIntervalMain }) => {
     dispatch(setOtherLocation({ data: !followGPS, choice: "follow" }));
   };
 
+  const hideAll = () => {
+    setIsSearch(false);
+    setIsInfo(false);
+    setIsSettings(false);
+    setInfoMessage(null);
+    dispatch(setOtherLocation({ data: false, choice: "routed" }));
+  };
+
   const handlePressLocalization = () => {
-
-
     if (isLocationActive) {
       stopIntervalMain();
     } else {
       startIntervalMain();
     }
 
-    dispatch(setOtherLocation({ choice: "locationActive", data: !isLocationActive }));
+    dispatch(
+      setOtherLocation({ choice: "locationActive", data: !isLocationActive })
+    );
   };
 
   const handlePressSearch = () => {
-    dispatch(setOtherLayers({ data: !isSearch, choice: "search" }));
-    dispatch(setOtherLayers({ data: false, choice: "info" }));
-    dispatch(setOtherLayers({ data: false, choice: "settings" }));
+    setIsSearch(!isSearch);
+    setIsInfo(false);
+    setIsSettings(false);
   };
 
   const handlePressSettings = () => {
-    dispatch(setOtherLayers({ data: false, choice: "search" }));
-    dispatch(setOtherLayers({ data: false, choice: "info" }));
-    dispatch(setOtherLayers({ data: !isSettings, choice: "settings" }));
+    setIsSearch(false);
+    setIsInfo(false);
+    setIsSettings(!isSettings);
   };
 
   return (
@@ -86,23 +99,27 @@ const Cards = ({ stopIntervalMain, startIntervalMain }) => {
               </View>
             </TouchableOpacity>
           )}
+          {!isRide && (
+            <TouchableOpacity onPress={handlePressLocalization}>
+              <View
+                style={[
+                  globalStyles.cardButtons,
+                  {
+                    backgroundColor: isLocationActive
+                      ? Colors.PRIMARY
+                      : "white",
+                  },
+                ]}
+              >
+                <MaterialIcons
+                  name="location-searching"
+                  size={24}
+                  color={isLocationActive ? "white" : Colors.PRIMARY}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity onPress={handlePressLocalization}>
-            <View
-              style={[
-                globalStyles.cardButtons,
-                {
-                  backgroundColor: isLocationActive ? Colors.PRIMARY : "white",
-                },
-              ]}
-            >
-              <MaterialIcons
-                name="location-searching"
-                size={24}
-                color={isLocationActive ? "white" : Colors.PRIMARY}
-              />
-            </View>
-          </TouchableOpacity>
           <TouchableOpacity onPress={handlePressSettings}>
             <View
               style={[
@@ -140,11 +157,15 @@ const Cards = ({ stopIntervalMain, startIntervalMain }) => {
         </View>
       )}
 
-      {isInfo && !isRouted && <CardInfo />}
-      {isSettings && !isRouted && <CardSettings />}
-      {isSearch && !isRouted && !isRide && <CardSearch />}
-      {isRouted && <CardRouted />}
-      {isRide && <CardRide />}
+      {isInfo && !isRouted && (
+        <CardInfo routesInfo={routesInfo} hideAll={hideAll} infoMessage={infoMessage} />
+      )}
+      {isSettings && !isRouted && <CardSettings hideAll={hideAll} />}
+      {isSearch && !isRouted && !isRide && <CardSearch hideAll={hideAll} />}
+      {isRouted && <CardRouted hideAll={hideAll} />}
+      {isRide && (
+        <CardRide hideAll={hideAll} stopIntervalMain={stopIntervalMain} />
+      )}
     </>
   );
 };

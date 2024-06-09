@@ -1,6 +1,6 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import MapView, { UrlTile } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Cards from "./cards/Cards";
 import { MapContext } from "../context/MapContext";
 import Markers from "./map/Markers";
@@ -10,12 +10,23 @@ import * as Location from "expo-location";
 import { useDispatch, useSelector } from "react-redux";
 import { setOtherLocation } from "../context/redux/reducers/locationSlice";
 import Borders from "./map/Borders";
+import ZTM from "./cards/ZTM";
+import ZTMTraces from "./ZTMTraces";
 
 const MapComponent = () => {
   const { getLocation, mapRef, region, setRegion } = useContext(MapContext);
-  const { location, followGPS, isLocationActive } = useSelector(
+  const { location, followGPS, isLocationActive, isRouted } = useSelector(
     (state) => state.root.location
   );
+  const { isRouteZTMMap } = useSelector((state) => state.root.layers);
+
+  const [isSearch, setIsSearch] = useState(false);
+  const [isInfo, setIsInfo] = useState(false);
+  const [isSettings, setIsSettings] = useState(false);
+
+  const { getRoutesNewData } = useContext(MapContext);
+  const [infoMessage, setInfoMessage] = useState(null);
+  const [routesInfo, setRoutesInfo] = useState([]);
 
   const intervalRefMain = useRef(null);
 
@@ -139,26 +150,32 @@ const MapComponent = () => {
     if (!isLocationActive) {
       let dd = await getLocation();
 
+      if (!dd) return;
+
       dispatch(setOtherLocation({ choice: "location", data: dd }));
       dispatch(setOtherLocation({ data: true, choice: "locationActive" }));
       let count = 0;
 
       intervalRefMain.current = setInterval(async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setErrorMsg("Permission to access location was denied");
-          return;
-        }
-        let dd = await Location.getCurrentPositionAsync({});
+        let dd = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+
         dispatch(setOtherLocation({ choice: "location", data: dd }));
         count++;
         console.log(count);
 
         if (count >= 10) {
           count = 0;
-          // refreshOSRM
+          if (isRouted) {
+            const coords = [
+              { latitude: dd.coords.latitude, longitude: dd.coords.longitude },
+              { latitude: location.endLocation },
+            ];
+          }
+          // getRoutesNewData()
         }
-      }, 5000);
+      }, 10000);
     }
   };
 
@@ -181,21 +198,35 @@ const MapComponent = () => {
           setRegion(e);
         }}
         rotateEnabled={false}
+        provider={PROVIDER_GOOGLE}
       >
-        <UrlTile
-          urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maximumZ={19}
-          flipY={false}
-        />
-
         {location && <CurrentLocation />}
-        <Markers />
+        <Markers
+          setIsInfo={setIsInfo}
+          setIsSettings={setIsSettings}
+          setInfoMessage={setInfoMessage}
+          setRoutesInfo={setRoutesInfo}
+        />
         <Borders />
         <Traces />
+
+        {isRouteZTMMap && <ZTMTraces />}
       </MapView>
+
+      <ZTM />
+
       <Cards
+        isSearch={isSearch}
+        isSettings={isSettings}
+        isInfo={isInfo}
+        setIsSearch={setIsSearch}
+        setIsInfo={setIsInfo}
+        setIsSettings={setIsSettings}
+        infoMessage={infoMessage}
+        setInfoMessage={setInfoMessage}
         stopIntervalMain={stopIntervalMain}
         startIntervalMain={startIntervalMain}
+        routesInfo={routesInfo}
       />
     </View>
   );

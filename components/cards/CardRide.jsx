@@ -1,7 +1,5 @@
 import { Text, View } from "react-native";
 import { globalStyles } from "../../constants/Globals";
-import { useContext } from "react";
-import { MapContext } from "../../context/MapContext";
 import { Colors } from "../../constants/Colors";
 import { Button } from "react-native-paper";
 import { useDispatch } from "react-redux";
@@ -11,21 +9,20 @@ import {
   setStartLocation,
 } from "../../context/redux/reducers/routesSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
+import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
 
-const CardRide = () => {
-  const { hideAll } = useContext(MapContext);
+const CardRide = ({ stopIntervalMain, hideAll }) => {
   const dispatch = useDispatch();
 
   const deleteTrace = () => {
     hideAll();
     dispatch(setOtherLocation({ choice: "ride", data: false }));
     dispatch(setOtherLocation({ choice: "follow", data: false }));
-    dispatch(setOtherLocation({ choice: "share", data: false }));
+    dispatch(setOtherLocation({ choice: "locationActive", data: false }));
+    dispatch(setOtherLayers({ choice: "route", data: false }));
     dispatch(setStartLocation(null));
     dispatch(setEndLocation(null));
     dispatch(setRoutes([]));
-
-    stopInterval();
   };
 
   return (

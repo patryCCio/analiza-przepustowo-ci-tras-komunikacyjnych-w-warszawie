@@ -5,17 +5,19 @@ import { Colors } from "../../constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../../api/api";
 import { setStops } from "../../context/redux/reducers/callsSlice";
-import {
-  setOtherLayers,
-  setInfoMessage,
-} from "../../context/redux/reducers/layersSlice";
 
-const Markers = () => {
+const Markers = ({
+  setIsSettings,
+  setIsInfo,
+  setInfoMessage,
+  setRoutesInfo,
+}) => {
   const { fitToCoordsHigher, region } = useContext(MapContext);
   const [visibleMarkers, setVisibleMarkers] = useState([]);
 
   const { stops } = useSelector((state) => state.root.data);
   const { isStopsMap } = useSelector((state) => state.root.layers);
+
   const dispatch = useDispatch();
 
   const getStops = async () => {
@@ -23,7 +25,7 @@ const Markers = () => {
     if (stops.length != 0) return;
     try {
       const result = await api.get(
-        process.env.EXPO_PUBLIC_API_URL + "timetables/timetable-info-all/stops"
+        process.env.EXPO_PUBLIC_API_URL + "timetables/stops"
       );
 
       dispatch(setStops(result.data));
@@ -86,10 +88,20 @@ const Markers = () => {
     filteredMarkers();
   }, [region, isStopsMap]);
 
-  const showInfo = (marker) => {
-    dispatch(setInfoMessage(marker));
-    dispatch(setOtherLayers({ choice: "info", data: true }));
-    dispatch(setOtherLayers({ choice: "settings", data: false }));
+  const showInfo = async (marker) => {
+    try {
+      const result = await api.get(
+        process.env.EXPO_PUBLIC_API_URL + "timetables/routes-by-stop/" + marker.id
+      );
+
+      setRoutesInfo(result.data);
+    } catch (err) {
+      console.log(err);
+    }
+
+    setInfoMessage(marker);
+    setIsSettings(false);
+    setIsInfo(true);
 
     fitToCoordsHigher({
       latitude: marker.latitude,

@@ -19,7 +19,6 @@ export default function RootLayout() {
           }}
           initialRouteName="home"
         >
-          <Stack.Screen name="(tabs)" />
         </Stack>
       </MapContextProvider>
     </Provider>

@@ -3,16 +3,12 @@ import { Text, TouchableOpacity, View } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { Colors } from "@/constants/Colors";
 import { Checkbox } from "react-native-paper";
-import { useContext } from "react";
-import { MapContext } from "../../context/MapContext";
 import { useDispatch, useSelector } from "react-redux";
 import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
 
-const CardSettings = () => {
-  const { hideAll } = useContext(MapContext);
-  const { isStopsMap, isTrafficFlowMap, isDistrictMap, isRouteZTMMap, } = useSelector(
-    (state) => state.root.layers
-  );
+const CardSettings = ({ hideAll }) => {
+  const { isStopsMap, isTrafficFlowMap, isDistrictMap, isRouteZTMMap } =
+    useSelector((state) => state.root.layers);
   const dispatch = useDispatch();
 
   return (

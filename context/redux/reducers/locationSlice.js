@@ -5,20 +5,20 @@ export const locationSlice = createSlice({
   initialState: {
     location: undefined,
     isLocationActive: false,
-    wantToShareLocation: false,
     followGPS: false,
+    isRouted: false,
   },
 
   reducers: {
     setOtherLocation: (state, action) => {
       if (action.payload.choice == "location") {
         state.location = action.payload.data;
-      } else if (action.payload.choice == "share") {
-        state.wantToShareLocation = action.payload.data;
       } else if (action.payload.choice == "follow") {
         state.followGPS = action.payload.data;
       } else if (action.payload.choice == "locationActive") {
         state.isLocationActive = action.payload.data;
+      } else if (action.payload.choice == "routed") {
+        state.isRouted = action.payload.data;
       }
     },
   },

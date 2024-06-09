@@ -1,7 +1,6 @@
-import MapComponent from "../../components/MapComponent";
+import MapComponent from "../components/MapComponent";
 
 const home = () => {
-
   return <MapComponent />;
 };
 
