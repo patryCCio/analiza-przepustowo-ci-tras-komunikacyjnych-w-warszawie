@@ -1,5 +1,9 @@
 import { StyleSheet } from "react-native";
+import { Dimensions } from "react-native";
 import { Colors } from "./Colors";
+
+const screenHeight = Dimensions.get("window").height;
+const cardHeight = screenHeight - 180;
 
 export const globalStyles = StyleSheet.create({
   button: {
@@ -120,6 +124,29 @@ export const globalStyles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+
+  cardZTM: {
+    position: "absolute",
+    flex: 1,
+    bottom: 120,
+    left: 10,
+    right: 10,
+    height: cardHeight,
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    zIndex: 1000,
+    borderRadius: 20,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
   cardButtons: {
     width: 60,
     height: 60,

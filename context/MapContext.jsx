@@ -1,9 +1,10 @@
 import { createContext, useRef, useState } from "react";
-import { setInfoMessage, setOtherLayers } from "./redux/reducers/layersSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as Location from "expo-location";
 import api from "../api/api";
 import { setRoutes } from "./redux/reducers/routesSlice";
+import { setOtherLocation } from "./redux/reducers/locationSlice";
+import { setCards } from "./redux/reducers/cardsSlice";
 
 export const MapContext = createContext();
 
@@ -18,12 +19,59 @@ export const MapContextProvider = ({ children }) => {
 
   const dispatch = useDispatch();
 
-  
+  const intervalRefMain = useRef(null);
+  const { isLocationActive } = useSelector((state) => state.root.location);
+
+  const startIntervalMain = async () => {
+    if (!isLocationActive) {
+      let dd = await getLocation();
+
+      if (!dd) return;
+
+      dispatch(setOtherLocation({ choice: "location", data: dd }));
+      dispatch(setOtherLocation({ data: true, choice: "locationActive" }));
+      let count = 0;
+
+      intervalRefMain.current = setInterval(async () => {
+        let dd = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+
+        dispatch(setOtherLocation({ choice: "location", data: dd }));
+        count++;
+
+        if (count >= 10) {
+          count = 0;
+          if (isRouted) {
+            const coords = [
+              { latitude: dd.coords.latitude, longitude: dd.coords.longitude },
+              { latitude: location.endLocation },
+            ];
+          }
+          // getRoutesNewData()
+        }
+      }, 10000);
+    }
+  };
+
+  const hideAll = () => {
+    dispatch(setCards({ choice: "all", data: false }));
+  };
+
+  const stopIntervalMain = () => {
+    if (isLocationActive) {
+      dispatch(setOtherLocation({ data: false, choice: "locationActive" }));
+      dispatch(setOtherLocation({ choice: "location", data: null }));
+      dispatch(setOtherLocation({ data: false, choice: "follow" }));
+      clearInterval(intervalRefMain.current);
+    }
+  };
+
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
       setErrorMsg("Permission to access location was denied");
-      return;
+      return null;
     }
 
     let dd = await Location.getCurrentPositionAsync({});
@@ -89,6 +137,10 @@ export const MapContextProvider = ({ children }) => {
     });
   };
 
+  const [stopInfo, setStopInfo] = useState(null);
+  const [traceInfo, setTraceInfo] = useState(null);
+  const [routesInfo, setRoutesInfo] = useState([]);
+
   return (
     <MapContext.Provider
       value={{
@@ -99,6 +151,15 @@ export const MapContextProvider = ({ children }) => {
         fitToCoords,
         getLocation,
         getRoutesNewData,
+        stopInfo,
+        setStopInfo,
+        traceInfo,
+        setTraceInfo,
+        startIntervalMain,
+        stopIntervalMain,
+        hideAll,
+        setRoutesInfo,
+        routesInfo,
       }}
     >
       {children}

@@ -1,36 +1,30 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Cards from "./cards/Cards";
 import { MapContext } from "../context/MapContext";
 import Markers from "./map/Markers";
-import Traces from "./map/Traces";
 import CurrentLocation from "./map/CurrentLocation";
-import * as Location from "expo-location";
-import { useDispatch, useSelector } from "react-redux";
-import { setOtherLocation } from "../context/redux/reducers/locationSlice";
+import { useSelector } from "react-redux";
 import Borders from "./map/Borders";
-import ZTM from "./cards/ZTM";
 import ZTMTraces from "./ZTMTraces";
+import ColorsInfo from "./cards/ColorsInfo";
+import { debounce } from "lodash";
+import Buttons from "./buttons/Buttons";
 
 const MapComponent = () => {
-  const { getLocation, mapRef, region, setRegion } = useContext(MapContext);
-  const { location, followGPS, isLocationActive, isRouted } = useSelector(
-    (state) => state.root.location
+  const { mapRef, region, setRegion } = useContext(MapContext);
+  const { location, followGPS } = useSelector((state) => state.root.location);
+  const { isRouteZTMMap, isDistrictMap, isStopsMap } = useSelector(
+    (state) => state.root.settings
   );
-  const { isRouteZTMMap } = useSelector((state) => state.root.layers);
 
-  const [isSearch, setIsSearch] = useState(false);
-  const [isInfo, setIsInfo] = useState(false);
-  const [isSettings, setIsSettings] = useState(false);
-
-  const { getRoutesNewData } = useContext(MapContext);
-  const [infoMessage, setInfoMessage] = useState(null);
-  const [routesInfo, setRoutesInfo] = useState([]);
-
-  const intervalRefMain = useRef(null);
-
-  const dispatch = useDispatch();
+  const debouncedRegionChange = useCallback(
+    debounce((newRegion, setRegion) => {
+      setRegion(newRegion);
+    }, 300),
+    []
+  );
 
   const fitToCoordsHigherSpeed = (data) => {
     let speed = parseFloat(location.coords.speed);
@@ -146,88 +140,29 @@ const MapComponent = () => {
     }
   }, [location]);
 
-  const startIntervalMain = async () => {
-    if (!isLocationActive) {
-      let dd = await getLocation();
-
-      if (!dd) return;
-
-      dispatch(setOtherLocation({ choice: "location", data: dd }));
-      dispatch(setOtherLocation({ data: true, choice: "locationActive" }));
-      let count = 0;
-
-      intervalRefMain.current = setInterval(async () => {
-        let dd = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
-        });
-
-        dispatch(setOtherLocation({ choice: "location", data: dd }));
-        count++;
-        console.log(count);
-
-        if (count >= 10) {
-          count = 0;
-          if (isRouted) {
-            const coords = [
-              { latitude: dd.coords.latitude, longitude: dd.coords.longitude },
-              { latitude: location.endLocation },
-            ];
-          }
-          // getRoutesNewData()
-        }
-      }, 10000);
-    }
-  };
-
-  const stopIntervalMain = () => {
-    if (isLocationActive) {
-      dispatch(setOtherLocation({ data: false, choice: "locationActive" }));
-      dispatch(setOtherLocation({ choice: "location", data: null }));
-      dispatch(setOtherLocation({ data: false, choice: "follow" }));
-      clearInterval(intervalRefMain.current);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <MapView
         ref={mapRef}
         style={styles.map}
         initialRegion={region}
-        onRegionChangeComplete={(e) => {
-          setRegion(e);
-        }}
+        onRegionChangeComplete={(newRegion) =>
+          debouncedRegionChange(newRegion, setRegion)
+        }
         rotateEnabled={false}
         provider={PROVIDER_GOOGLE}
       >
         {location && <CurrentLocation />}
-        <Markers
-          setIsInfo={setIsInfo}
-          setIsSettings={setIsSettings}
-          setInfoMessage={setInfoMessage}
-          setRoutesInfo={setRoutesInfo}
-        />
-        <Borders />
-        <Traces />
 
+        {isStopsMap && <Markers />}
+        {isDistrictMap && <Borders />}
         {isRouteZTMMap && <ZTMTraces />}
       </MapView>
 
-      <ZTM />
+      {isRouteZTMMap && <ColorsInfo />}
 
-      <Cards
-        isSearch={isSearch}
-        isSettings={isSettings}
-        isInfo={isInfo}
-        setIsSearch={setIsSearch}
-        setIsInfo={setIsInfo}
-        setIsSettings={setIsSettings}
-        infoMessage={infoMessage}
-        setInfoMessage={setInfoMessage}
-        stopIntervalMain={stopIntervalMain}
-        startIntervalMain={startIntervalMain}
-        routesInfo={routesInfo}
-      />
+      <Buttons />
+      <Cards />
     </View>
   );
 };

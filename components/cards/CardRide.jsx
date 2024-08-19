@@ -9,7 +9,7 @@ import {
   setStartLocation,
 } from "../../context/redux/reducers/routesSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
-import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
+import { setOtherLayers } from "../../context/redux/reducers/settingsSlice";
 
 const CardRide = ({ stopIntervalMain, hideAll }) => {
   const dispatch = useDispatch();

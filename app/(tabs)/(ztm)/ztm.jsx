@@ -1,54 +1,46 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import ZTMItem from "./ZTMItem";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "../../../constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
+import ZTMItem2 from "../../../components/cards/ZTMItem2";
 import { useEffect, useState } from "react";
-import Loading from "../Loading";
-import { Button } from "react-native-paper";
-import { setAllActivesFalse } from "../../context/redux/reducers/mainSlice";
+import Loading from "../../../components/Loading";
+import { useNavigation } from "expo-router";
 
-const ZTMCard = () => {
-  const dispatch = useDispatch();
-  const { vehicles, stops } = useSelector((state) => state.root.data);
+const ztm = () => {
+  const { vehicles } = useSelector((state) => state.root.data);
   const [loading, setLoading] = useState(true);
 
+  const navigation = useNavigation();
+
   useEffect(() => {
-    if (vehicles.length > 0 && stops.length > 0) {
+    if (!loading) {
+      navigation.setOptions({
+        headerShown: true,
+        title: "Komunikacja miejska ZTM",
+      });
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    if (vehicles.length > 0) {
       setLoading(false);
     }
-  }, [vehicles, stops]);
-
-  const handlePress = () => {
-    setLoading(true);
-    dispatch(setAllActivesFalse());
-    setLoading(false);
-  };
+  }, [vehicles]);
 
   return loading ? (
     <Loading />
   ) : (
-    <ScrollView style={[style.card, { position: "relative" }]}>
+    <ScrollView style={style.card}>
       <View style={{ paddingVertical: 30, gap: 20 }}>
-        <View style={{ paddingLeft: 20, alignItems: "flex-start", flex: 1 }}>
-          <Button
-            style={{ marginTop: 40, width: 220 }}
-            mode="contained"
-            onPress={handlePress}
-          >
-            Odznacz wszystko
-          </Button>
+        <View style={{ paddingTop: 20, backgroundColor: Colors.THIRD }}>
+          <Text style={style.info1}>Surowe dane komunikacji miejskiej ZTM</Text>
+          <Text style={style.info2}>https://api.um.warszawa.pl</Text>
+          <Text style={style.info1}>Dane o przepływie ruchu</Text>
+          <Text style={style.info2}>https://here.com</Text>
+          <Text style={style.info1}>Dane statystyczne dla miasta Warszawa</Text>
+          <Text style={style.info2}>https://stat.gov.pl/</Text>
         </View>
-
-        <Text
-          style={{
-            paddingHorizontal: 20,
-            fontSize: 24,
-            fontFamily: "outfit-medium",
-          }}
-        >
-          Zaznacz linie do analizy
-        </Text>
 
         <View style={style.type}>
           <MaterialIcons
@@ -61,84 +53,42 @@ const ZTMCard = () => {
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Autobus" && item.route[0] == "1") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Autobus" && item.route[0] == "2") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Autobus" && item.route[0] == "3") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Autobus" && item.route[0] == "4") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Autobus" && item.route[0] == "5") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Autobus" && item.route[0] == "7") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
@@ -146,14 +96,7 @@ const ZTMCard = () => {
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Autobus" && item.route[0] == "N") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
@@ -164,14 +107,7 @@ const ZTMCard = () => {
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Tramwaj") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
@@ -182,14 +118,7 @@ const ZTMCard = () => {
         <View style={style.items}>
           {vehicles.map((item) => {
             if (item.type == "Pociąg") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                />
-              );
+              return <ZTMItem2 key={item.id} item={item} />;
             }
           })}
         </View>
@@ -208,7 +137,6 @@ const style = StyleSheet.create({
     backgroundColor: "white",
   },
   items: {
-    position: "relative",
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
@@ -248,4 +176,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default ZTMCard;
+export default ztm;

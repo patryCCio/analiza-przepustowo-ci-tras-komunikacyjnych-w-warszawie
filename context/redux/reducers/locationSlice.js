@@ -11,14 +11,20 @@ export const locationSlice = createSlice({
 
   reducers: {
     setOtherLocation: (state, action) => {
-      if (action.payload.choice == "location") {
-        state.location = action.payload.data;
-      } else if (action.payload.choice == "follow") {
-        state.followGPS = action.payload.data;
-      } else if (action.payload.choice == "locationActive") {
-        state.isLocationActive = action.payload.data;
-      } else if (action.payload.choice == "routed") {
-        state.isRouted = action.payload.data;
+      const { choice, data } = action.payload;
+
+      if (choice == "location") {
+        state.location = data;
+      } else if (choice == "follow") {
+        state.followGPS = data;
+      } else if (choice == "locationActive") {
+        state.isLocationActive = data;
+      } else if (choice == "routed") {
+        state.isRouted = data;
+      } else if (choice == "all") {
+        state.isLocationActive = data;
+        state.followGPS = data;
+        state.isRouted = data;
       }
     },
   },

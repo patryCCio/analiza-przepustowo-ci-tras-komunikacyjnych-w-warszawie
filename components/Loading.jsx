@@ -1,14 +1,17 @@
-import {
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet, ActivityIndicator } from "react-native";
 import { Colors } from "../constants/Colors";
 
 const Loading = () => {
   return (
     <ActivityIndicator
       size="large"
-      style={{ width: "100%", height: "100%", backgroundColor: "white" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "white",
+        zIndex: 100,
+        transform: [{ scale: 3 }],
+      }}
       color={Colors.PRIMARY}
     />
   );

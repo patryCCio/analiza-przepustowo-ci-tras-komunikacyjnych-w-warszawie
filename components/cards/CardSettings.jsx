@@ -4,12 +4,27 @@ import Feather from "@expo/vector-icons/Feather";
 import { Colors } from "@/constants/Colors";
 import { Checkbox } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import { setOtherLayers } from "../../context/redux/reducers/layersSlice";
+import { setSettings } from "../../context/redux/reducers/settingsSlice";
+import { useContext } from "react";
+import { MapContext } from "../../context/MapContext";
 
-const CardSettings = ({ hideAll }) => {
-  const { isStopsMap, isTrafficFlowMap, isDistrictMap, isRouteZTMMap } =
-    useSelector((state) => state.root.layers);
+const CardSettings = () => {
+  const { isStopsMap, isDistrictMap, isRouteZTMMap } = useSelector(
+    (state) => state.root.settings
+  );
+
+  const { hideAll } = useContext(MapContext);
+
   const dispatch = useDispatch();
+
+  const handleClickShow = () => {
+    dispatch(
+      setSettings({
+        choice: "routeZTMMap",
+        data: !isRouteZTMMap,
+      })
+    );
+  };
 
   return (
     <View style={globalStyles.cardBigger}>
@@ -53,7 +68,7 @@ const CardSettings = ({ hideAll }) => {
               status={isStopsMap ? "checked" : "unchecked"}
               onPress={() => {
                 dispatch(
-                  setOtherLayers({ data: !isStopsMap, choice: "stopsMap" })
+                  setSettings({ data: !isStopsMap, choice: "stopsMap" })
                 );
               }}
             />
@@ -62,27 +77,10 @@ const CardSettings = ({ hideAll }) => {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Checkbox
               color={Colors.PRIMARY}
-              status={isTrafficFlowMap ? "checked" : "unchecked"}
-              onPress={() => {
-                dispatch(
-                  setOtherLayers({
-                    choice: "trafficFlowMap",
-                    data: !isTrafficFlowMap,
-                  })
-                );
-              }}
-            />
-            <Text style={{ fontFamily: "outfit" }}>
-              Pokaż prognozę ruchu (HERE TRAFFIC)
-            </Text>
-          </View>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Checkbox
-              color={Colors.PRIMARY}
               status={isDistrictMap ? "checked" : "unchecked"}
               onPress={() => {
                 dispatch(
-                  setOtherLayers({
+                  setSettings({
                     choice: "districtMap",
                     data: !isDistrictMap,
                   })
@@ -97,14 +95,7 @@ const CardSettings = ({ hideAll }) => {
             <Checkbox
               color={Colors.PRIMARY}
               status={isRouteZTMMap ? "checked" : "unchecked"}
-              onPress={() => {
-                dispatch(
-                  setOtherLayers({
-                    choice: "routeZTMMap",
-                    data: !isRouteZTMMap,
-                  })
-                );
-              }}
+              onPress={handleClickShow}
             />
             <Text style={{ fontFamily: "outfit" }}>Pokaż trasy ZTM</Text>
           </View>

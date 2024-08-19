@@ -1,30 +1,26 @@
 import { Text, View } from "react-native";
 import { Colors } from "../../constants/Colors";
-import {
-  setIsActive,
-  setIsActiveRoute,
-} from "../../context/redux/reducers/callsSlice";
 import { TouchableOpacity } from "react-native";
+import { getRoutes, getTraces } from "../../context/redux/functions";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
-  getRoutesForTrace,
-  getRoutesInfo,
-} from "../../context/redux/functions";
-import AntDesign from "@expo/vector-icons/AntDesign";
+  setIsActiveTrace,
+  setIsActiveVehicle,
+} from "../../context/redux/reducers/mainSlice";
 
-const ZTMItem = ({ item, dispatch, setIsLoading }) => {
+const ZTMItem = ({ stops, item, dispatch }) => {
   const getDataAll = () => {
-    if (!item.routes) {
-      getRoutesInfo(dispatch, item, setIsLoading);
+    if (!item.traces) {
+      getTraces(dispatch, item);
     }
-    dispatch(setIsActive(item.id, setIsLoading));
+    dispatch(setIsActiveVehicle(item.id));
   };
 
-  const handlePress = (route) => {
-    if (route == "route2" && !item.route2.data) return;
-    dispatch(setIsActiveRoute({ id: item.id, route: route }));
-    if (route == "route1" && item.route1_coords) return;
-    if (route == "route2" && item.route2_coords) return;
-    getRoutesForTrace(dispatch, item, route);
+  const handlePress = (trace) => {
+    if (!trace.routes) {
+      getRoutes(dispatch, item, trace, stops);
+    }
+    dispatch(setIsActiveTrace({ vehicle_id: item.id, trace_id: trace.id }));
   };
 
   return (
@@ -56,116 +52,72 @@ const ZTMItem = ({ item, dispatch, setIsLoading }) => {
           </Text>
         </View>
       </TouchableOpacity>
-
-      {item.route1 && item.route2 && item.is_active && (
+      {item.traces && item.is_active && (
         <View
           style={{
             width: "100%",
-            flexDirection: "row",
-            justifyContent: "center",
+            flexDirection: "column",
+            alignItems: "center",
             gap: 10,
           }}
         >
-          <TouchableOpacity
-            onPress={() => handlePress("route1")}
-            style={{
-              width: item.route2.data ? "47%" : "94%",
-              alignItems: "center",
-              flex: 1,
-            }}
-          >
-            {item.route1.data && (
-              <View
-                style={{
-                  flexDirection: "column",
-                  gap: 40,
-                  paddingHorizontal: 10,
-                  alignItems: "center",
-                  flex: 1,
-                  width: "100%",
-                  borderColor: !item.route1.is_active ? "gray" : Colors.THIRD,
-                  borderWidth: 1,
-                  backgroundColor: !item.route1.is_active
-                    ? "white"
-                    : Colors.THIRD,
-                }}
-              >
-                <Text
+          {item.traces.length > 0 &&
+            item.is_active &&
+            item.traces.map((trace) => {
+              return (
+                <TouchableOpacity
                   style={{
-                    fontFamily: "outfit",
-                    paddingVertical: 10,
-                    color: item.route1.is_active ? "white" : "black",
+                    width: "100%",
+                    borderWidth: 1,
+                    borderColor: Colors.PRIMARY,
+                    padding: 10,
+                    flex: 1,
+                    alignItems: "center",
+                    backgroundColor: trace.is_active
+                      ? Colors.PRIMARY
+                      : "transparent",
                   }}
+                  key={trace.id}
+                  onPress={() => handlePress(trace)}
                 >
-                  {item.route1.data[0].name}
-                </Text>
-                <AntDesign
-                  name="arrowdown"
-                  size={32}
-                  color={item.route1.is_active ? "white" : "black"}
-                />
-                <Text
-                  style={{
-                    fontFamily: "outfit",
-                    paddingVertical: 10,
-                    color: item.route1.is_active ? "white" : "black",
-                  }}
-                >
-                  {item.route1.data[0].direction_route}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handlePress("route2")}
-            style={{ width: "47%", alignItems: "center", flex: 1 }}
-          >
-            {item.route2.data ? (
-              <View
-                style={{
-                  flexDirection: "column",
-                  gap: 40,
-                  paddingHorizontal: 10,
-                  alignItems: "center",
-                  flex: 1,
-                  width: "100%",
-                  borderColor: !item.route2.is_active ? "gray" : Colors.THIRD,
-                  borderWidth: 1,
-                  backgroundColor: item.route2.is_active
-                    ? Colors.THIRD
-                    : "white",
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: "outfit",
-                    paddingVertical: 10,
-                    color: !item.route2.is_active ? "black" : "white",
-                  }}
-                >
-                  {item.route2.data[0].name}
-                </Text>
-                <AntDesign
-                  name="arrowdown"
-                  size={32}
-                  color={item.route2.is_active ? "white" : "black"}
-                />
-                <Text
-                  style={{
-                    fontFamily: "outfit",
-                    paddingVertical: 10,
-                    color: !item.route2.is_active ? "black" : "white",
-                  }}
-                >
-                  {item.route2.data[0].direction_route}
-                </Text>
-              </View>
-            ) : (
-              <View style={{ justifyContent: "center", flex: 1 }}>
-                <Text style={{ fontFamily: "outfit-bold" }}>Brak danych!</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+                  <View
+                    style={{ flex: 1, alignItems: "flex-start", width: "100%" }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "outfit-medium",
+                        fontSize: 16,
+                        color: trace.is_active ? "white" : "black",
+                      }}
+                    >
+                      {trace.stop_from}
+                    </Text>
+                  </View>
+                  <FontAwesome
+                    name="long-arrow-right"
+                    size={64}
+                    color={trace.is_active ? "white" : Colors.PRIMARY}
+                    style={{
+                      marginVertical: 20,
+                      transform: [{ rotate: "25deg" }],
+                    }}
+                  />
+                  <View
+                    style={{ flex: 1, alignItems: "flex-end", width: "100%" }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "outfit-medium",
+                        fontSize: 16,
+                        color: trace.is_active ? "white" : "black",
+                      }}
+                    >
+                      {trace.stop_end}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
         </View>
       )}
     </>
