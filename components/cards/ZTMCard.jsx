@@ -10,7 +10,9 @@ import { setAllActivesFalse } from "../../context/redux/reducers/mainSlice";
 
 const ZTMCard = () => {
   const dispatch = useDispatch();
-  const { vehicles, stops } = useSelector((state) => state.root.data);
+  const { vehicles, stops, districts, count_of_active } = useSelector(
+    (state) => state.root.data
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ const ZTMCard = () => {
     <Loading />
   ) : (
     <ScrollView style={[style.card, { position: "relative" }]}>
-      <View style={{ paddingVertical: 30, gap: 20 }}>
+      <View style={{ paddingVertical: 30, gap: 10 }}>
         <View style={{ paddingLeft: 20, alignItems: "flex-start", flex: 1 }}>
           <Button
             style={{ marginTop: 40, width: 220 }}
@@ -49,6 +51,45 @@ const ZTMCard = () => {
         >
           Zaznacz linie do analizy
         </Text>
+        <Text
+          style={{
+            top: -15,
+            paddingHorizontal: 20,
+            fontSize: 18,
+            fontFamily: "outfit-medium",
+            color: "tomato",
+          }}
+        >
+          Max 2 trasy
+        </Text>
+
+        <View
+          style={{
+            alignItems: "center",
+            paddingHorizontal: 20,
+            flexDirection: "row",
+            gap: 10,
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: "outfit",
+              color: Colors.PRIMARY,
+              fontSize: 20,
+            }}
+          >
+            Zaznaczonych tras:
+          </Text>
+          <Text
+            style={{
+              fontFamily: "outfit-bold",
+              color: Colors.SECOND,
+              fontSize: 26,
+            }}
+          >
+            {count_of_active}/2
+          </Text>
+        </View>
 
         <View style={style.type}>
           <MaterialIcons
@@ -67,6 +108,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -81,6 +123,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -95,6 +138,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -109,6 +153,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -123,6 +168,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -137,6 +183,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -152,6 +199,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -170,6 +218,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }
@@ -188,6 +237,7 @@ const ZTMCard = () => {
                   key={item.id}
                   dispatch={dispatch}
                   item={item}
+                  districts={districts}
                 />
               );
             }

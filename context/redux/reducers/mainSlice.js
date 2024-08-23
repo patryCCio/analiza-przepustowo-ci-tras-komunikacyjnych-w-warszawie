@@ -6,6 +6,9 @@ export const mainSlice = createSlice({
     stops: [],
     districts: [],
     vehicles: [],
+    traffic_flow: [],
+
+    count_of_active: 0,
   },
 
   reducers: {
@@ -96,6 +99,18 @@ export const mainSlice = createSlice({
           }
         } else return el;
       });
+
+      let count = 0;
+
+      array.forEach((el) => {
+        if (el.traces) {
+          el.traces.forEach((el2) => {
+            if (el2.is_active) count++;
+          });
+        }
+      });
+
+      state.count_of_active = count;
       state.vehicles = array;
     },
     setIsActiveTrace: (state, action) => {
@@ -105,7 +120,9 @@ export const mainSlice = createSlice({
         if (el.id == vehicle_id) {
           const traces = el.traces.map((el2) => {
             if (el2.id == trace_id) {
-              return {
+              if (state.count_of_active == 2) {
+                return el2;
+              } else return {
                 ...el2,
                 is_active: !el2.is_active,
               };
@@ -123,6 +140,17 @@ export const mainSlice = createSlice({
         }
       });
 
+      let count = 0;
+
+      array.forEach((el) => {
+        if (el.traces) {
+          el.traces.forEach((el2) => {
+            if (el2.is_active) count++;
+          });
+        }
+      });
+
+      state.count_of_active = count;
       state.vehicles = array;
     },
     setAllActivesFalse: (state, action) => {
@@ -150,6 +178,7 @@ export const mainSlice = createSlice({
       });
 
       state.vehicles = array;
+      state.count_of_active = 0;
     },
     setTimetable: (state, action) => {
       const { routes, trace_id, vehicle_id } = action.payload;
@@ -187,6 +216,9 @@ export const mainSlice = createSlice({
 
       state.vehicles = array;
     },
+    setTrafficFlow: (state, action) => {
+      state.traffic_flow = action.payload;
+    },
   },
 });
 
@@ -201,5 +233,6 @@ export const {
   setAllActivesFalse,
   setTimetable,
   setTracesFromFullData,
+  setTrafficFlow,
 } = mainSlice.actions;
 export default mainSlice.reducer;

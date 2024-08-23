@@ -8,6 +8,7 @@ export const buttonsSlice = createSlice({
     settingsButton: true,
     searchButton: true,
     ztmButton: true,
+    colorsButton: false,
   },
 
   reducers: {
@@ -24,6 +25,8 @@ export const buttonsSlice = createSlice({
         state.searchButton = data;
       } else if (choice == "ztmButton") {
         state.ztmButton = data;
+      } else if (choice == "colorsButton") {
+        state.colorsButton = data;
       } else if (choice == "all") {
         state.gpsButton = data;
         state.gpsTrack = data;

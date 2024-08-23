@@ -7,17 +7,26 @@ import Markers from "./map/Markers";
 import CurrentLocation from "./map/CurrentLocation";
 import { useSelector } from "react-redux";
 import Borders from "./map/Borders";
-import ZTMTraces from "./ZTMTraces";
+import ZTMTraces from "./cards/trace/ZTMTraces";
 import ColorsInfo from "./cards/ColorsInfo";
 import { debounce } from "lodash";
 import Buttons from "./buttons/Buttons";
+import TrafficFlowTrace from "./cards/trace/TrafficFlowTrace";
+import DistrictTrace from "./cards/trace/DistrictTrace";
 
 const MapComponent = () => {
   const { mapRef, region, setRegion } = useContext(MapContext);
   const { location, followGPS } = useSelector((state) => state.root.location);
-  const { isRouteZTMMap, isDistrictMap, isStopsMap } = useSelector(
-    (state) => state.root.settings
-  );
+  const {
+    isRouteZTMMap,
+    routeNormal,
+    routeFlow,
+    routeDistrict,
+    isDistrictMap,
+    isStopsMap,
+  } = useSelector((state) => state.root.settings);
+
+  const { colorsButton } = useSelector((state) => state.root.buttons);
 
   const debouncedRegionChange = useCallback(
     debounce((newRegion, setRegion) => {
@@ -156,10 +165,12 @@ const MapComponent = () => {
 
         {isStopsMap && <Markers />}
         {isDistrictMap && <Borders />}
-        {isRouteZTMMap && <ZTMTraces />}
+        {routeNormal && <ZTMTraces />}
+        {routeFlow && <TrafficFlowTrace />}
+        {routeDistrict && <DistrictTrace />}
       </MapView>
 
-      {isRouteZTMMap && <ColorsInfo />}
+      {isRouteZTMMap && !colorsButton && <ColorsInfo />}
 
       <Buttons />
       <Cards />

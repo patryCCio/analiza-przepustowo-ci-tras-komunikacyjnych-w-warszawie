@@ -5,7 +5,7 @@ import { Colors } from "../../constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../../api/api";
 import { Image, View, Text, StyleSheet } from "react-native";
-import MarkerDot from "../../assets/images/marker-dot.png";
+import MarkerDot from "../../assets/images/pin_primary.png";
 import { setCards } from "../../context/redux/reducers/cardsSlice";
 
 const Markers = () => {
@@ -151,7 +151,9 @@ const Markers = () => {
             showInfo(marker);
           }}
         >
-          <Image source={MarkerDot} style={{ width: 16, height: 16 }} />
+          <View>
+            <Image source={MarkerDot} style={{ width: 24, height: 24 }} />
+          </View>
         </Marker>
       ))}
 

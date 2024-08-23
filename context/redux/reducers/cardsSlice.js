@@ -8,6 +8,7 @@ export const cardsSlice = createSlice({
     ztmCard: false,
     stopCard: false,
     ztmCardInfo: false,
+    colorsCard: false,
   },
 
   reducers: {
@@ -24,12 +25,15 @@ export const cardsSlice = createSlice({
         state.stopCard = data;
       } else if (choice == "ztmCardInfo") {
         state.ztmCardInfo = data;
+      } else if (choice == "colorsCard") {
+        state.colorsCard = data;
       } else if (choice == "all") {
         state.settingsCard = data;
         state.searchCard = data;
         state.ztmCard = data;
         state.stopCard = data;
         state.ztmCardInfo = data;
+        state.colorsCard = data;
       }
     },
   },

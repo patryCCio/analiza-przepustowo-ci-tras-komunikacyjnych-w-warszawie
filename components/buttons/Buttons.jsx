@@ -1,7 +1,7 @@
 import { TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { globalStyles } from "../../constants/Globals";
-import { Entypo, MaterialIcons } from "@expo/vector-icons";
+import { Entypo, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
 import { setButtons } from "../../context/redux/reducers/buttonsSlice";
 import { setCards } from "../../context/redux/reducers/cardsSlice";
@@ -14,24 +14,39 @@ const Buttons = () => {
     (state) => state.root.location
   );
 
-  const { gpsButton, gpsTrack, settingsButton, searchButton, ztmButton } =
-    useSelector((state) => state.root.buttons);
-  const { settingsCard, searchCard, ztmCard } = useSelector(
+  const {
+    gpsButton,
+    gpsTrack,
+    settingsButton,
+    searchButton,
+    ztmButton,
+    colorsButton,
+  } = useSelector((state) => state.root.buttons);
+  const { settingsCard, searchCard, ztmCard, colorsCard } = useSelector(
     (state) => state.root.cards
   );
   const { stopIntervalMain, startIntervalMain } = useContext(MapContext);
 
+  const { isRouteZTMMap } = useSelector((state) => state.root.settings);
+
   const dispatch = useDispatch();
 
-  const names = ["settingsCard", "searchCard", "ztmCard"];
+  const names = ["settingsCard", "searchCard", "ztmCard", "colorsCard"];
 
   const handlePress = (name) => {
+    if (name != "colorsButton" && isRouteZTMMap) {
+      dispatch(setButtons({ choice: "colorsButton", data: true }));
+    }
+
     if (name == "settingsCard") {
       dispatch(setCards({ choice: name, data: !settingsCard }));
     } else if (name == "searchCard") {
       dispatch(setCards({ choice: name, data: !searchCard }));
     } else if (name == "ztmCard") {
       dispatch(setCards({ choice: name, data: !ztmCard }));
+    } else if (name == "colorsButton") {
+      dispatch(setButtons({ choice: name, data: false }));
+      dispatch(setCards({ choice: "colorsCard", data: true }));
     }
 
     names.forEach((el) => {
@@ -178,6 +193,40 @@ const Buttons = () => {
               name="alt-route"
               size={34}
               color={ztmCard ? "white" : Colors.PRIMARY}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {colorsButton && (
+        <View
+          style={{
+            position: "absolute",
+            width: 63,
+            height: 63,
+            top: 160,
+            right: 20,
+            borderRadius: 20,
+            backgroundColor: colorsCard ? Colors.PRIMARY : "white",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 100,
+            shadowColor: "#000",
+            zIndex: 210,
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+        >
+          <TouchableOpacity onPress={() => handlePress("colorsButton")}>
+            <Ionicons
+              name="layers"
+              size={34}
+              color={colorsCard ? "white" : Colors.PRIMARY}
             />
           </TouchableOpacity>
         </View>

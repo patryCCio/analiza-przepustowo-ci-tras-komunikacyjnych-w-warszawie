@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSettings } from "../../context/redux/reducers/settingsSlice";
 import { useContext } from "react";
 import { MapContext } from "../../context/MapContext";
+import { setButtons } from "../../context/redux/reducers/buttonsSlice";
 
 const CardSettings = () => {
   const { isStopsMap, isDistrictMap, isRouteZTMMap } = useSelector(
@@ -24,6 +25,7 @@ const CardSettings = () => {
         data: !isRouteZTMMap,
       })
     );
+    dispatch(setButtons({ choice: "colorsButton", data: !isRouteZTMMap }));
   };
 
   return (

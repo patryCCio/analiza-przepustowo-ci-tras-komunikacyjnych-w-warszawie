@@ -13,7 +13,7 @@ import { Colors } from "../../../../../constants/Colors";
 import Loading from "../../../../../components/Loading";
 
 const routes = () => {
-  const { vehicles, stops } = useSelector((state) => state.root.data);
+  const { vehicles, stops, districts } = useSelector((state) => state.root.data);
   const [route, setRoute] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const routes = () => {
   const router = useRouter();
 
   const getData = async (trace) => {
-    getRoutes(dispatch, vehicle, trace, stops);
+    getRoutes(dispatch, vehicle, trace, stops, districts);
   };
 
   useEffect(() => {

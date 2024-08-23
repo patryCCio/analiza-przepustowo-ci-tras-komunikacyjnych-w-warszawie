@@ -8,7 +8,7 @@ import {
   setIsActiveVehicle,
 } from "../../context/redux/reducers/mainSlice";
 
-const ZTMItem = ({ stops, item, dispatch }) => {
+const ZTMItem = ({ stops, item, dispatch, districts }) => {
   const getDataAll = () => {
     if (!item.traces) {
       getTraces(dispatch, item);
@@ -18,7 +18,7 @@ const ZTMItem = ({ stops, item, dispatch }) => {
 
   const handlePress = (trace) => {
     if (!trace.routes) {
-      getRoutes(dispatch, item, trace, stops);
+      getRoutes(dispatch, item, trace, stops, districts);
     }
     dispatch(setIsActiveTrace({ vehicle_id: item.id, trace_id: trace.id }));
   };

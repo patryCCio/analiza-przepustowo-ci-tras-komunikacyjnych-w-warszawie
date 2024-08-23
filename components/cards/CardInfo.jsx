@@ -15,7 +15,7 @@ import { getAllData } from "../../context/redux/functions";
 
 const CardInfo = () => {
   const { fitToCoords, routesInfo, stopInfo, hideAll } = useContext(MapContext);
-  const { vehicles } = useSelector((state) => state.root.data);
+  const { vehicles, districts } = useSelector((state) => state.root.data);
   const dispatch = useDispatch();
 
   const router = useRouter();
@@ -66,7 +66,7 @@ const CardInfo = () => {
         }
       });
 
-      const ready = await getAllData(result.data, type);
+      const ready = await getAllData(result.data, type, districts);
 
       dispatch(
         setTracesFromFullData({ traces: ready, vehicle_id: vehicle_id })

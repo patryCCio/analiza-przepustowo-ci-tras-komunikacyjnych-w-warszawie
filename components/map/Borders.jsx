@@ -16,14 +16,10 @@ const Borders = () => {
 
   let indexx = -1;
 
-  useEffect(() => {
-    if (districts.length > 0) {
-    }
-  }, [districts]);
-
   const getBorders = async () => {
     if (!isDistrictMap) return;
     if (districts.length != 0) return;
+
     try {
       const result = await api.get("districts/districts-info");
 
