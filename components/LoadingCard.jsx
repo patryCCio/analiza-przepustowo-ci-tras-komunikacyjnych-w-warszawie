@@ -1,4 +1,4 @@
-import { StyleSheet, ActivityIndicator } from "react-native";
+import { ActivityIndicator } from "react-native";
 import { Colors } from "../constants/Colors";
 
 const LoadingCard = () => {
@@ -10,7 +10,6 @@ const LoadingCard = () => {
         top: 0,
         left: 0,
         height: 200,
-        backgroundColor: "red",
         zIndex: 100,
         position: "absolute",
         transform: [{ scale: 3 }],

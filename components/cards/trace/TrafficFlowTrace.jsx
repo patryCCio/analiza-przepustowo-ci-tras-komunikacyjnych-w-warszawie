@@ -1,62 +1,148 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { Polyline } from "react-native-maps";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllActiveVehicles,
   getColorBySpeed,
-  getFlowForTraces,
   isCoordinateInRegion,
 } from "../../../context/redux/functions";
 import { MapContext } from "../../../context/MapContext";
+import api from "../../../api/api";
+import { setCards } from "../../../context/redux/reducers/cardsSlice";
+import {
+  setAccidents,
+  setAnomalies,
+  setPartials,
+  setVehiclesSegments,
+} from "../../../context/redux/reducers/mainSlice";
 
 const TrafficFlowTrace = () => {
-  const { traffic_flow, vehicles } = useSelector(
+  const { vehicles, vehiclesSegments } = useSelector(
     (state) => state.root.data
   );
-  const [vehiclesSegments, setVehilcesSegments] = useState([]);
+  const {
+    setTraceInfo,
+    setChangeVehicles,
+    changeVehicles,
+    region,
+    actualOrderTime,
+    setLoadingFlow,
+  } = useContext(MapContext);
 
-  const { region } = useContext(MapContext);
+  const dispatch = useDispatch();
 
   const setData = async () => {
-    const vehiclesArray = await getAllActiveVehicles(vehicles);
-    const newVehicle = await getFlowForTraces(vehiclesArray, traffic_flow, 0);
+    try {
+      setLoadingFlow(true);
+      const newVehicle = await api.post("operations/get-flow-for-traces", {
+        vehicles: vehicles,
+      });
 
-    setVehilcesSegments(newVehicle);
+      dispatch(setVehiclesSegments(newVehicle.data.vehicles));
+      dispatch(setAnomalies(newVehicle.data.anomalies));
+      dispatch(setAccidents(newVehicle.data.accidents));
+      dispatch(setPartials(newVehicle.data.partials));
+      setChangeVehicles(false);
+      setLoadingFlow(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handlePress = (vehicle_id, trace_id) => {
+    setTraceInfo({ vehicle_id, trace_id });
+    dispatch(setCards({ choice: "all", data: false }));
+    dispatch(setCards({ choice: "ztmCardInfo", data: true }));
   };
 
   useEffect(() => {
-    if (vehicles.length > 0 && traffic_flow.length > 0) {
+    if (changeVehicles && vehicles.length > 0) {
       setData();
     }
-  }, [traffic_flow, vehicles]);
+  }, [vehicles, changeVehicles]);
 
   return (
     <>
       {vehiclesSegments.length > 0 &&
         vehiclesSegments.map((el) => {
-          return el.coords.coordinates.map((coord, index) => {
-            if (index < el.coords.coordinates.length - 1) {
-              const startCoord = coord;
-              const endCoord = el.coords.coordinates[index + 1];
-              const color = getColorBySpeed(startCoord.speed);
+          if (actualOrderTime == 0) {
+            return el.coords_0.coordinates.map((coord, index) => {
+              if (index < el.coords.coordinates.length - 1) {
+                const startCoord = coord;
+                const endCoord = el.coords.coordinates[index + 1];
+                const color = getColorBySpeed(startCoord.speed);
 
-              if (
-                region &&
-                (isCoordinateInRegion(startCoord, region) ||
-                  isCoordinateInRegion(endCoord, region))
-              ) {
-                return (
-                  <Polyline
-                    strokeWidth={2}
-                    strokeColor={color}
-                    coordinates={[startCoord, endCoord]}
-                    key={`${el.route}-${el.stop_from}-${index}`}
-                  />
-                );
+                if (
+                  region &&
+                  (isCoordinateInRegion(startCoord, region) ||
+                    isCoordinateInRegion(endCoord, region))
+                ) {
+                  return (
+                    <Polyline
+                      strokeWidth={2}
+                      strokeColor={color}
+                      coordinates={[startCoord, endCoord]}
+                      key={`${el.route}-${el.stop_from}-${index}`}
+                      tappable={true}
+                      onPress={() => handlePress(el.vehicle_id, el.trace_id)}
+                    />
+                  );
+                }
               }
-            }
-            return null;
-          });
+              return null;
+            });
+          } else if (actualOrderTime == 1) {
+            return el.coords_1.coordinates.map((coord, index) => {
+              if (index < el.coords.coordinates.length - 1) {
+                const startCoord = coord;
+                const endCoord = el.coords.coordinates[index + 1];
+                const color = getColorBySpeed(startCoord.speed);
+
+                if (
+                  region &&
+                  (isCoordinateInRegion(startCoord, region) ||
+                    isCoordinateInRegion(endCoord, region))
+                ) {
+                  return (
+                    <Polyline
+                      strokeWidth={2}
+                      strokeColor={color}
+                      coordinates={[startCoord, endCoord]}
+                      key={`${el.route}-${el.stop_from}-${index}`}
+                      tappable={true}
+                      onPress={() => handlePress(el.vehicle_id, el.trace_id)}
+                    />
+                  );
+                }
+              }
+              return null;
+            });
+          } else if (actualOrderTime == 2) {
+            return el.coords_2.coordinates.map((coord, index) => {
+              if (index < el.coords.coordinates.length - 1) {
+                const startCoord = coord;
+                const endCoord = el.coords.coordinates[index + 1];
+                const color = getColorBySpeed(startCoord.speed);
+
+                if (
+                  region &&
+                  (isCoordinateInRegion(startCoord, region) ||
+                    isCoordinateInRegion(endCoord, region))
+                ) {
+                  return (
+                    <Polyline
+                      strokeWidth={2}
+                      strokeColor={color}
+                      coordinates={[startCoord, endCoord]}
+                      key={`${el.route}-${el.stop_from}-${index}`}
+                      tappable={true}
+                      onPress={() => handlePress(el.vehicle_id, el.trace_id)}
+                    />
+                  );
+                }
+              }
+              return null;
+            });
+          }
         })}
     </>
   );

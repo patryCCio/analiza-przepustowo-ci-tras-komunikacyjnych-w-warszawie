@@ -9,6 +9,8 @@ export const cardsSlice = createSlice({
     stopCard: false,
     ztmCardInfo: false,
     colorsCard: false,
+    shortestPathCard: false,
+    shortestPathCardArray: false,
   },
 
   reducers: {
@@ -27,6 +29,10 @@ export const cardsSlice = createSlice({
         state.ztmCardInfo = data;
       } else if (choice == "colorsCard") {
         state.colorsCard = data;
+      } else if (choice == "shortestPathCard") {
+        state.shortestPathCard = data;
+      } else if (choice == "shortestPathCardArray") {
+        state.shortestPathCardArray = data;
       } else if (choice == "all") {
         state.settingsCard = data;
         state.searchCard = data;
@@ -34,6 +40,8 @@ export const cardsSlice = createSlice({
         state.stopCard = data;
         state.ztmCardInfo = data;
         state.colorsCard = data;
+        state.shortestPathCard = data;
+        state.shortestPathCardArray = data;
       }
     },
   },

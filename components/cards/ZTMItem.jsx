@@ -7,6 +7,8 @@ import {
   setIsActiveTrace,
   setIsActiveVehicle,
 } from "../../context/redux/reducers/mainSlice";
+import { useContext } from "react";
+import { MapContext } from "../../context/MapContext";
 
 const ZTMItem = ({ stops, item, dispatch, districts }) => {
   const getDataAll = () => {
@@ -16,11 +18,29 @@ const ZTMItem = ({ stops, item, dispatch, districts }) => {
     dispatch(setIsActiveVehicle(item.id));
   };
 
+  const {
+    setChangeVehicles,
+    loadingNormal,
+    loadingFlow,
+    setTitleDialog,
+    setTextDialog,
+    setShowDialog,
+  } = useContext(MapContext);
+
   const handlePress = (trace) => {
+    if (loadingFlow || loadingNormal) {
+      setTitleDialog("Uwaga!");
+      setTextDialog(
+        "Przed zaznaczeniem następnej trasy musi dokończyć ładowanie danych poprzedniej trasy!"
+      );
+      setShowDialog(true);
+      return;
+    }
     if (!trace.routes) {
       getRoutes(dispatch, item, trace, stops, districts);
     }
     dispatch(setIsActiveTrace({ vehicle_id: item.id, trace_id: trace.id }));
+    setChangeVehicles(true);
   };
 
   return (

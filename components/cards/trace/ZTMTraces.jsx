@@ -68,24 +68,7 @@ const ZTMTraces = () => {
   let index = -1;
 
   const handlePress = (vehicle_id, trace_id) => {
-    let result;
-
-    vehicles.forEach((el) => {
-      if (el.id == vehicle_id) {
-        el.traces.forEach((el2) => {
-          if (el2.id == trace_id) {
-            result = {
-              ...el,
-              traces: {
-                ...el2,
-              },
-            };
-          }
-        });
-      }
-    });
-
-    setTraceInfo(result);
+    setTraceInfo({vehicle_id, trace_id});
     dispatch(setCards({ choice: "all", data: false }));
     dispatch(setCards({ choice: "ztmCardInfo", data: true }));
   };

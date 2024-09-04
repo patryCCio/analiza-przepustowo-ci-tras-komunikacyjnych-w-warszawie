@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import MapComponent from "../../components/MapComponent";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import api from "../../api/api";
 import Loading from "../../components/Loading";
 import {
@@ -8,13 +8,17 @@ import {
   setStops,
   setDistricts,
 } from "../../context/redux/reducers/mainSlice";
-import axios from "axios";
-import { refactorAllTrafficFlowData } from "../../context/redux/functions";
+import { Button, Dialog, PaperProvider, Portal } from "react-native-paper";
+import { MapContext } from "../../context/MapContext";
+import { Text } from "react-native";
 
 const home = () => {
   const { vehicles, stops, districts } = useSelector(
     (state) => state.root.data
   );
+
+  const { showDialog, setShowDialog, textDialog, titleDialog } =
+    useContext(MapContext);
 
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
@@ -35,25 +39,6 @@ const home = () => {
         const result = await api.get("districts/districts-info");
         dispatch(setDistricts(result.data));
       }
-
-      const string = 52.2297 + "," + 21.0122 + ";r=" + 100;
-
-      const url = `https://traffic.ls.hereapi.com/traffic/6.2/flow.json?apiKey=${process.env.EXPO_PUBLIC_API_HERE}&prox=52.2297,21.0122,500&responseattributes=sh,fc,fi&units=metric`;
-
-      const url2 = `https://data.traffic.hereapi.com/v7/flow?in=circle:${string}&locationReferencing=shape&apiKey=${process.env.EXPO_PUBLIC_API_HERE}`;
-      const url3 = `https://data.traffic.hereapi.com/v7/flow?in=circle:52.2297,21.0122;r=100&locationReferencing=shape&apiKey=rJxEQpsFwFxAi1O9Y4Ydkbyc--KtGiGu4kS26U28hlA`;
-      const array = [
-        { dd: "ttt", he: "ff" },
-        { lol: "tt", dd: "zz" },
-      ];
-
-      // const response = await axios.get(url2);
-
-      // const res = await api.post("json/save-to-json", { data: response.data });
-      // console.log(res.data);
-
-      const res = await api.get("json/get-json");
-      refactorAllTrafficFlowData(dispatch, res.data);
     } catch (error) {
       console.log(error);
     }
@@ -64,7 +49,24 @@ const home = () => {
     getData();
   }, []);
 
-  return loading ? <Loading /> : <MapComponent />;
+  return loading ? (
+    <Loading />
+  ) : (
+    <PaperProvider>
+      <Portal>
+        <Dialog visible={showDialog} onDismiss={() => setShowDialog(false)}>
+          <Dialog.Title>{titleDialog}</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">{textDialog}</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowDialog(false)}>Okej!</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      <MapComponent />
+    </PaperProvider>
+  );
 };
 
 export default home;

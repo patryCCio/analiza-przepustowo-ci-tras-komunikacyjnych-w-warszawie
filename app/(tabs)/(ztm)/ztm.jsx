@@ -111,17 +111,6 @@ const ztm = () => {
             }
           })}
         </View>
-        <View style={style.type}>
-          <MaterialIcons name="train" color={Colors.PRIMARY} size={36} />
-          <Text style={[style.text]}>Pociągi</Text>
-        </View>
-        <View style={style.items}>
-          {vehicles.map((item) => {
-            if (item.type == "Pociąg") {
-              return <ZTMItem2 key={item.id} item={item} />;
-            }
-          })}
-        </View>
       </View>
     </ScrollView>
   );

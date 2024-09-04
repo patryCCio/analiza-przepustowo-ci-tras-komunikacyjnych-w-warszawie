@@ -1,6 +1,7 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Colors } from "../../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
+import { useEffect, useState } from "react";
 
 const CheckTrace = ({
   setText,
@@ -10,6 +11,8 @@ const CheckTrace = ({
   setSearchResult,
   checkTo,
   checkFrom,
+  searchOption,
+  actualIndex,
 }) => {
   const hide = () => {
     setSearchResult([]);
@@ -21,11 +24,30 @@ const CheckTrace = ({
     handleCheckPress(el, type);
   };
 
+  const [top, setTop] = useState(0);
+
+  useEffect(() => {
+    if (searchOption) {
+      if (checkFrom || checkTo){
+        setTop(260);
+      } else {
+        setTop(160);
+      }
+      
+    } else {
+      if (checkTo != null) {
+        setTop(180);
+      } else {
+        setTop(160);
+      }
+    }
+  }, [searchOption, actualIndex, checkFrom, checkTo]);
+
   return (
     <ScrollView
       style={{
         position: "absolute",
-        top: checkFrom || checkTo ? 180 : 160,
+        top: top,
         left: 10,
         width: "100%",
         backgroundColor: Colors.FOURTH,

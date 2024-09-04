@@ -63,7 +63,7 @@ const districtColors = {
 const DistrictTrace = () => {
   const { vehicles, stops } = useSelector((state) => state.root.data);
 
-  const { region } = useContext(MapContext);
+  const { region, setTraceInfo } = useContext(MapContext);
 
   const [segments, setSegments] = useState([]);
   const [allStops, setAllStops] = useState([]);
@@ -114,6 +114,8 @@ const DistrictTrace = () => {
               let currentSegment = {
                 coords: [coords[0]],
                 name: coords[0].name,
+                trace_id: el2.id,
+                vehicle_id: el.id,
               };
 
               for (let i = 1; i < coords.length; i++) {
@@ -125,6 +127,8 @@ const DistrictTrace = () => {
                   currentSegment = {
                     coords: [previousPoint, currentPoint],
                     name: currentPoint.name,
+                    trace_id: el2.id,
+                    vehicle_id: el.id,
                   };
                 } else {
                   currentSegment.coords.push(currentPoint);
@@ -141,24 +145,7 @@ const DistrictTrace = () => {
   }, [vehicles]);
 
   const handlePress = (vehicle_id, trace_id) => {
-    let result;
-
-    vehicles.forEach((el) => {
-      if (el.id == vehicle_id) {
-        el.traces.forEach((el2) => {
-          if (el2.id == trace_id) {
-            result = {
-              ...el,
-              traces: {
-                ...el2,
-              },
-            };
-          }
-        });
-      }
-    });
-
-    setTraceInfo(result);
+    setTraceInfo({ vehicle_id, trace_id });
     dispatch(setCards({ choice: "all", data: false }));
     dispatch(setCards({ choice: "ztmCardInfo", data: true }));
   };
@@ -179,6 +166,7 @@ const DistrictTrace = () => {
               strokeColor={districtColors[segment.name] || "gray"}
               strokeWidth={2}
               tappable={true}
+              onPress={() => handlePress(segment.vehicle_id, segment.trace_id)}
             />
           </View>
         );

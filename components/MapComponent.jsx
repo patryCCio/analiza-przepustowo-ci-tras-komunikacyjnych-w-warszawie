@@ -13,9 +13,11 @@ import { debounce } from "lodash";
 import Buttons from "./buttons/Buttons";
 import TrafficFlowTrace from "./cards/trace/TrafficFlowTrace";
 import DistrictTrace from "./cards/trace/DistrictTrace";
+import Accidents from "./map/Accidents";
+import ShortestPath from "./map/ShortestPath";
 
 const MapComponent = () => {
-  const { mapRef, region, setRegion } = useContext(MapContext);
+  const { mapRef, region, setRegion, showAccidents } = useContext(MapContext);
   const { location, followGPS } = useSelector((state) => state.root.location);
   const {
     isRouteZTMMap,
@@ -27,6 +29,9 @@ const MapComponent = () => {
   } = useSelector((state) => state.root.settings);
 
   const { colorsButton } = useSelector((state) => state.root.buttons);
+  const { count_of_active, vehicles } = useSelector((state) => state.root.data);
+
+  const { setLoadingNormal, shortestPathArray } = useContext(MapContext);
 
   const debouncedRegionChange = useCallback(
     debounce((newRegion, setRegion) => {
@@ -149,6 +154,28 @@ const MapComponent = () => {
     }
   }, [location]);
 
+  useEffect(() => {
+    let count = 0;
+
+    vehicles.forEach((el) => {
+      if (el.is_active && el.traces) {
+        el.traces.forEach((el2) => {
+          if (el2.is_active) {
+            if (el2.coords) {
+              count++;
+            }
+          }
+        });
+      }
+    });
+
+    if (count == count_of_active) {
+      setLoadingNormal(false);
+    } else {
+      setLoadingNormal(true);
+    }
+  }, [vehicles]);
+
   return (
     <View style={styles.container}>
       <MapView
@@ -168,6 +195,9 @@ const MapComponent = () => {
         {routeNormal && <ZTMTraces />}
         {routeFlow && <TrafficFlowTrace />}
         {routeDistrict && <DistrictTrace />}
+
+        {showAccidents && <Accidents />}
+        {shortestPathArray.length > 0 && <ShortestPath />}
       </MapView>
 
       {isRouteZTMMap && !colorsButton && <ColorsInfo />}

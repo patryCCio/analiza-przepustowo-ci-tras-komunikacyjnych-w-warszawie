@@ -8,6 +8,11 @@ export const mainSlice = createSlice({
     vehicles: [],
     traffic_flow: [],
 
+    accidents: [],
+    anomalies: [],
+    partials: [],
+    vehiclesSegments: [],
+
     count_of_active: 0,
   },
 
@@ -73,6 +78,9 @@ export const mainSlice = createSlice({
 
       state.vehicles = array;
     },
+    setVehiclesSegments: (state, action) => {
+      state.vehiclesSegments = action.payload;
+    },
     setIsActiveVehicle: (state, action) => {
       const id = action.payload;
 
@@ -122,10 +130,11 @@ export const mainSlice = createSlice({
             if (el2.id == trace_id) {
               if (state.count_of_active == 2) {
                 return el2;
-              } else return {
-                ...el2,
-                is_active: !el2.is_active,
-              };
+              } else
+                return {
+                  ...el2,
+                  is_active: !el2.is_active,
+                };
             } else {
               return el2;
             }
@@ -219,6 +228,15 @@ export const mainSlice = createSlice({
     setTrafficFlow: (state, action) => {
       state.traffic_flow = action.payload;
     },
+    setAccidents: (state, action) => {
+      state.accidents = action.payload;
+    },
+    setAnomalies: (state, action) => {
+      state.anomalies = action.payload;
+    },
+    setPartials: (state, action) => {
+      state.partials = action.payload;
+    },
   },
 });
 
@@ -234,5 +252,9 @@ export const {
   setTimetable,
   setTracesFromFullData,
   setTrafficFlow,
+  setVehiclesSegments,
+  setAccidents,
+  setAnomalies,
+  setPartials,
 } = mainSlice.actions;
 export default mainSlice.reducer;

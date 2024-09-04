@@ -1,4 +1,4 @@
-import { TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { globalStyles } from "../../constants/Globals";
 import { Entypo, MaterialIcons, Ionicons } from "@expo/vector-icons";
@@ -8,6 +8,7 @@ import { setCards } from "../../context/redux/reducers/cardsSlice";
 import { setOtherLocation } from "../../context/redux/reducers/locationSlice";
 import { useContext } from "react";
 import { MapContext } from "../../context/MapContext";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const Buttons = () => {
   const { isLocationActive, followGPS } = useSelector(
@@ -22,16 +23,29 @@ const Buttons = () => {
     ztmButton,
     colorsButton,
   } = useSelector((state) => state.root.buttons);
-  const { settingsCard, searchCard, ztmCard, colorsCard } = useSelector(
-    (state) => state.root.cards
-  );
-  const { stopIntervalMain, startIntervalMain } = useContext(MapContext);
+  const {
+    settingsCard,
+    searchCard,
+    ztmCard,
+    colorsCard,
+    shortestPathCard,
+    shortestPathCardArray,
+  } = useSelector((state) => state.root.cards);
+  const { stopIntervalMain, startIntervalMain, shortestPathArray } =
+    useContext(MapContext);
 
   const { isRouteZTMMap } = useSelector((state) => state.root.settings);
 
   const dispatch = useDispatch();
 
-  const names = ["settingsCard", "searchCard", "ztmCard", "colorsCard"];
+  const names = [
+    "settingsCard",
+    "searchCard",
+    "ztmCard",
+    "colorsCard",
+    "shortestPathCard",
+    "shortestPathCardArray",
+  ];
 
   const handlePress = (name) => {
     if (name != "colorsButton" && isRouteZTMMap) {
@@ -44,6 +58,10 @@ const Buttons = () => {
       dispatch(setCards({ choice: name, data: !searchCard }));
     } else if (name == "ztmCard") {
       dispatch(setCards({ choice: name, data: !ztmCard }));
+    } else if (name == "shortestPathCard") {
+      dispatch(setCards({ choice: name, data: !shortestPathCard }));
+    } else if (name == "shortestPathCardArray") {
+      dispatch(setCards({ choice: name, data: !shortestPathCardArray }));
     } else if (name == "colorsButton") {
       dispatch(setButtons({ choice: name, data: false }));
       dispatch(setCards({ choice: "colorsCard", data: true }));
@@ -163,6 +181,77 @@ const Buttons = () => {
           </TouchableOpacity>
         )}
       </View>
+
+      {shortestPathArray.length > 0 && (
+        <View
+          style={{
+            position: "absolute",
+            width: 63,
+            height: 63,
+            top: 80,
+            right: 100,
+            borderRadius: 20,
+            backgroundColor: shortestPathCard ? Colors.PRIMARY : "white",
+            justifyContent: "center",
+            alignItems: "center",
+            shadowColor: "#000",
+            zIndex: 210,
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+        >
+          <TouchableOpacity onPress={() => handlePress("shortestPathCard")}>
+            <FontAwesome
+              name="info"
+              size={34}
+              color={shortestPathCard ? "white" : Colors.PRIMARY}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {shortestPathArray.length > 0 && (
+        <View
+          style={{
+            position: "absolute",
+            width: 80,
+            height: 63,
+            top: 80,
+            right: 180,
+            borderRadius: 20,
+            backgroundColor: shortestPathCardArray ? Colors.PRIMARY : "white",
+            justifyContent: "center",
+            alignItems: "center",
+            shadowColor: "#000",
+            zIndex: 210,
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => handlePress("shortestPathCardArray")}
+          >
+            <Text
+              style={{
+                fontFamily: "outfit-bold",
+                color: shortestPathCardArray ? "white" : Colors.PRIMARY,
+              }}
+            >
+              Trasy
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {ztmButton && (
         <View

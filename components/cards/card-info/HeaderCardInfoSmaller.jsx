@@ -1,9 +1,8 @@
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import ColorsButtons from "../trace/ColorsButtons";
 import { Colors } from "../../../constants/Colors";
 
-const HeaderCardInfo = ({ hideAll, traceData, text }) => {
+const HeaderCardInfoSmaller = ({ hideAll, traceData, text }) => {
   return (
     <View
       style={{
@@ -31,7 +30,7 @@ const HeaderCardInfo = ({ hideAll, traceData, text }) => {
             <MaterialIcons
               name="directions-bus"
               color={Colors.PRIMARY}
-              size={64}
+              size={32}
             />
           )}
           {traceData.type == "Tramwaj" && (
@@ -56,7 +55,7 @@ const HeaderCardInfo = ({ hideAll, traceData, text }) => {
 const styles = StyleSheet.create({
   name: {
     fontFamily: "outfit-bold",
-    fontSize: 48,
+    fontSize: 28,
     color: Colors.PRIMARY,
   },
   generalInfo: {
@@ -79,4 +78,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HeaderCardInfo;
+export default HeaderCardInfoSmaller;

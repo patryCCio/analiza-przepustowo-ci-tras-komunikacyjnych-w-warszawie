@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ColorsNormal from "./trace/ColorsNormal";
 import ColorsTraffic from "./trace/ColorsTraffic";
@@ -6,10 +6,19 @@ import ColorsDistrict from "./trace/ColorsDistrict";
 import ColorsButtons from "./trace/ColorsButtons";
 import { setButtons } from "../../context/redux/reducers/buttonsSlice";
 import { setCards } from "../../context/redux/reducers/cardsSlice";
-import ColorsTrafficFuture from "./trace/ColorsTrafficFuture";
+import { useContext, useEffect, useState } from "react";
+import { MapContext } from "../../context/MapContext";
+import LoadingTrace from "../LoadingTrace";
+
 const ColorsInfo = () => {
-  const { routeNormal, routeFlow, routeFlowFuture, routeDistrict } =
-    useSelector((state) => state.root.settings);
+  const { routeNormal, routeFlow, routeDistrict } = useSelector(
+    (state) => state.root.settings
+  );
+
+  const { loadingNormal, loadingFlow } = useContext(MapContext);
+  const { count_of_active } = useSelector((state) => state.root.data);
+
+  const [actualState, setActualState] = useState(1);
 
   const dispatch = useDispatch();
 
@@ -18,22 +27,68 @@ const ColorsInfo = () => {
     dispatch(setCards({ choice: "colorsCard", data: false }));
   };
 
+  useEffect(() => {
+    if (routeNormal) {
+      if (loadingNormal) {
+        setActualState(1);
+      } else {
+        setActualState(11);
+      }
+    } else if (routeFlow) {
+      if (loadingFlow) {
+        setActualState(2);
+      } else {
+        setActualState(22);
+      }
+    } else if (routeDistrict) {
+      if (loadingNormal) {
+        setActualState(3);
+      } else {
+        setActualState(33);
+      }
+    }
+  }, [routeNormal, routeFlow, routeDistrict, loadingFlow, loadingNormal]);
+
   return (
     <View style={styles.card}>
       <View style={{ position: "relative", flex: 1, width: "100%" }}>
-        {routeNormal && (
-          <ColorsNormal hideColors={hideColors} styles={styles} />
-        )}
-        {routeFlow && <ColorsTraffic hideColors={hideColors} styles={styles} />}
-        {routeFlowFuture && (
-          <ColorsTrafficFuture hideColors={hideColors} styles={styles} />
-        )}
+        {count_of_active > 0 ? (
+          <>
+            {actualState == 1 && (
+              <LoadingTrace text={"Ładowanie danych o trasach!"} />
+            )}
+            {actualState == 11 && (
+              <ColorsNormal hideColors={hideColors} styles={styles} />
+            )}
 
-        {routeDistrict && (
-          <ColorsDistrict hideColors={hideColors} styles={styles} />
-        )}
+            {actualState == 2 && (
+              <LoadingTrace text={"Ładowanie danych o trasach!"} />
+            )}
+            {actualState == 22 && (
+              <ColorsTraffic hideColors={hideColors} styles={styles} />
+            )}
 
-        <ColorsButtons styles={styles} />
+            {actualState == 3 && (
+              <LoadingTrace text={"Ładowanie danych o trasach!"} />
+            )}
+            {actualState == 33 && (
+              <ColorsDistrict hideColors={hideColors} styles={styles} />
+            )}
+          </>
+        ) : (
+          <>
+            <Text
+              style={{
+                fontFamily: "outfit-bold",
+                fontSize: 16,
+                color: "tomato",
+              }}
+            >
+              Musisz zaznaczyć przynajmniej jedną trasę!
+            </Text>
+          </>
+        )}
+        {!loadingNormal && <ColorsButtons styles={styles} />}
       </View>
     </View>
   );
@@ -46,7 +101,7 @@ const styles = StyleSheet.create({
     left: "5%",
     backgroundColor: "white",
     width: "78%",
-    height: 220,
+    height: 250,
     padding: 10,
     borderTopLeftRadius: 12,
     borderBottomLeftRadius: 12,
@@ -83,7 +138,7 @@ const styles = StyleSheet.create({
     width: "22%",
     right: -60,
     top: -10,
-    height: 220,
+    height: 250,
     backgroundColor: "#eee",
     justifyContent: "space-between",
     alignItems: "center",

@@ -224,25 +224,6 @@ const ZTMCard = () => {
             }
           })}
         </View>
-        <View style={style.type}>
-          <MaterialIcons name="train" color={Colors.PRIMARY} size={36} />
-          <Text style={[style.text]}>Pociągi</Text>
-        </View>
-        <View style={style.items}>
-          {vehicles.map((item) => {
-            if (item.type == "Pociąg") {
-              return (
-                <ZTMItem
-                  stops={stops}
-                  key={item.id}
-                  dispatch={dispatch}
-                  item={item}
-                  districts={districts}
-                />
-              );
-            }
-          })}
-        </View>
       </View>
     </ScrollView>
   );

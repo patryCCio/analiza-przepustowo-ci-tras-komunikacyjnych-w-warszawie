@@ -10,7 +10,6 @@ export const settingsSlice = createSlice({
 
     routeNormal: false,
     routeFlow: false,
-    routeFlowFuture: false,
     routeDistrict: false,
 
     showStopsNormal: false,
@@ -51,28 +50,18 @@ export const settingsSlice = createSlice({
 
         state.routeNormal = true;
         state.routeFlow = false;
-        state.routeFlowFuture = false;
         state.routeDistrict = false;
       } else if (choice == "routeFlow") {
         if (state.routeFlow) return;
 
         state.routeNormal = false;
         state.routeFlow = true;
-        state.routeFlowFuture = false;
-        state.routeDistrict = false;
-      } else if (choice == "routeFlowFuture") {
-        if (state.routeFlowFuture) return;
-
-        state.routeNormal = false;
-        state.routeFlow = false;
-        state.routeFlowFuture = true;
         state.routeDistrict = false;
       } else if (choice == "routeDistrict") {
         if (state.routeDistrict) return;
 
         state.routeNormal = false;
         state.routeFlow = false;
-        state.routeFlowFuture = false;
         state.routeDistrict = true;
       }
     },

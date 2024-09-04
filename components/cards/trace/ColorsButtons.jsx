@@ -5,9 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setColors } from "../../../context/redux/reducers/settingsSlice";
 
 const ColorsButtons = ({ styles }) => {
-  const { routeDistrict, routeFlow, routeFlowFuture, routeNormal } = useSelector(
+  const { routeDistrict, routeFlow, routeNormal } = useSelector(
     (state) => state.root.settings
   );
+
   const dispatch = useDispatch();
 
   const handlePress = (choice) => {
@@ -44,21 +45,6 @@ const ColorsButtons = ({ styles }) => {
           name="traffic-cone"
           size={24}
           color={routeFlow ? "white" : Colors.SECOND}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.card_buttons_inner,
-          {
-            backgroundColor: routeFlowFuture ? Colors.PRIMARY : "transparent",
-          },
-        ]}
-        onPress={() => handlePress("routeFlowFuture")}
-      >
-        <FontAwesome5
-          name="clock"
-          size={24}
-          color={routeFlowFuture ? "white" : Colors.SECOND}
         />
       </TouchableOpacity>
       <TouchableOpacity

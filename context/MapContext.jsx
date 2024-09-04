@@ -1,4 +1,4 @@
-import { createContext, useRef, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Location from "expo-location";
 import api from "../api/api";
@@ -17,10 +17,32 @@ export const MapContextProvider = ({ children }) => {
     longitudeDelta: 0.0421,
   });
 
+  const [changeVehicles, setChangeVehicles] = useState(false);
+  const [actualOrderTime, setActualOrderTime] = useState(0);
+  const [showAccidents, setShowAccidents] = useState(false);
+
   const dispatch = useDispatch();
+
+  const { vehicles, vehiclesSegments } = useSelector(
+    (state) => state.root.data
+  );
+  const { routeFlow } = useSelector((state) => state.root.settings);
 
   const intervalRefMain = useRef(null);
   const { isLocationActive } = useSelector((state) => state.root.location);
+
+  const [loadingFlow, setLoadingFlow] = useState(false);
+  const [loadingNormal, setLoadingNormal] = useState(false);
+
+  const [showDialog, setShowDialog] = useState(false);
+  const [titleDialog, setTitleDialog] = useState("");
+  const [textDialog, setTextDialog] = useState("");
+
+  const [shortestPath, setShortestPath] = useState([]);
+  const [shortestPathArray, setShortestPathArray] = useState([]);
+  const [actualShortest, setActualShortest] = useState(0);
+
+  const [analizeEl, setAnalizeEl] = useState(null);
 
   const startIntervalMain = async () => {
     if (!isLocationActive) {
@@ -141,6 +163,62 @@ export const MapContextProvider = ({ children }) => {
   const [traceInfo, setTraceInfo] = useState(null);
   const [routesInfo, setRoutesInfo] = useState([]);
 
+  const [walk, setWalk] = useState(false);
+  const [walkCoords, setWalkCoords] = useState({
+    fromLat: 0,
+    fromLon: 0,
+    toLat: 0,
+    toLon: 0,
+  });
+
+  const [traceData, setTraceData] = useState(null);
+
+  const [showShortestTrace, setShowShortestTrace] = useState(false);
+  const [showShortestMarker, setShowShortestMarker] = useState(false);
+
+  useEffect(() => {
+    if (vehicles.length > 0 && traceInfo != null) {
+      if (vehiclesSegments.length > 0 && routeFlow) {
+        vehicles.forEach((el) => {
+          if (el.id == traceInfo.vehicle_id) {
+            vehiclesSegments.forEach((el2) => {
+              if (el2.trace_id == traceInfo.trace_id) {
+                setTraceData({
+                  ...el,
+                  traces: {
+                    ...el2,
+                    coords_0: el2.coords_0,
+                    coords_1: el2.coords_1,
+                    coords_2: el2.coords_2,
+                  },
+                });
+              }
+            });
+          }
+        });
+      }
+
+      if (!routeFlow) {
+        vehicles.forEach((el) => {
+          if (el.id == traceInfo.vehicle_id) {
+            if (el.traces) {
+              el.traces.forEach((el2) => {
+                if (el2.id == traceInfo.trace_id) {
+                  setTraceData({
+                    ...el,
+                    traces: {
+                      ...el2,
+                    },
+                  });
+                }
+              });
+            }
+          }
+        });
+      }
+    }
+  }, [vehicles, traceInfo, vehiclesSegments, routeFlow]);
+
   return (
     <MapContext.Provider
       value={{
@@ -160,6 +238,39 @@ export const MapContextProvider = ({ children }) => {
         hideAll,
         setRoutesInfo,
         routesInfo,
+        traceData,
+        changeVehicles,
+        setChangeVehicles,
+        actualOrderTime,
+        setActualOrderTime,
+        showAccidents,
+        setShowAccidents,
+        loadingNormal,
+        loadingFlow,
+        setLoadingNormal,
+        setLoadingFlow,
+        showDialog,
+        setShowDialog,
+        setTextDialog,
+        textDialog,
+        setTitleDialog,
+        titleDialog,
+        shortestPath,
+        setShortestPath,
+        showShortestTrace,
+        showShortestMarker,
+        setShowShortestTrace,
+        setShowShortestMarker,
+        setWalk,
+        walk,
+        walkCoords,
+        setWalkCoords,
+        setActualShortest,
+        actualShortest,
+        shortestPathArray,
+        setShortestPathArray,
+        analizeEl,
+        setAnalizeEl,
       }}
     >
       {children}

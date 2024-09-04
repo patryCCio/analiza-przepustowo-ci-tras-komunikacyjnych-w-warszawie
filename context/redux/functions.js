@@ -19,54 +19,16 @@ const getDistanceFromLatLonInMeters = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
-export const getFlowForTraces = async (
-  vehiclesArray,
-  traffic_flow,
-  order_time
-) => {
-  const trafficFlow = traffic_flow.filter((el) => el.order_time == order_time);
-
-  const maxDistance = 100;
-
-  return await vehiclesArray.map((el) => {
-    const coords = el.coords.coordinates.map((coord, index) => {
-      let closestFlow = null;
-      let minDistance = Infinity;
-
-      trafficFlow.forEach((flow) => {
-        const distance = getDistanceFromLatLonInMeters(
-          coord.latitude,
-          coord.longitude,
-          flow.latitude,
-          flow.longitude
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestFlow = flow;
-        }
-      });
-
-      return minDistance > maxDistance
-        ? { ...closestFlow, ...coord, speed: null }
-        : { ...closestFlow, ...coord };
-    });
-
-    return {
-      ...el,
-      coords: {
-        distance: el.coords.distance,
-        coordinates: coords,
-      },
-    };
-  });
-};
-
 export const getColorBySpeed = (speed) => {
   if (speed === null) return "gray";
-  if (speed < 10) return "#8f0909";
-  if (speed < 25) return "orangered";
-  if (speed < 40) return "gold";
-  if (speed < 55) return "green";
+
+  // Przeliczenie prędkości z m/s na km/h
+  const speedKmH = speed * 3.6;
+
+  if (speedKmH < 10) return "#8f0909";
+  if (speedKmH < 25) return "orangered";
+  if (speedKmH < 40) return "gold";
+  if (speedKmH < 55) return "green";
   return "royalblue";
 };
 
@@ -195,6 +157,199 @@ const isPointInPolygon = (point, polygon) => {
   return inside;
 };
 
+// exhibit 10-5
+export const getRoadClass = (freeFlow) => {
+  const kmh = freeFlow * 3.6;
+
+  if (kmh >= 80) return "I";
+  if (kmh >= 65) return "II";
+  if (kmh >= 55) return "III";
+
+  return "IV";
+};
+
+// exhibit 15-2
+export const getLOSClass = (road_class, avgSpeed) => {
+  const kmh = avgSpeed * 3.6;
+  switch (road_class) {
+    case "I":
+      if (kmh <= 26) {
+        return "F";
+      } else if (kmh > 26 && kmh <= 32) {
+        return "E";
+      } else if (kmh > 32 && kmh <= 40) {
+        return "D";
+      } else if (kmh > 40 && kmh <= 56) {
+        return "C";
+      } else if (kmh > 56 && kmh <= 72) {
+        return "B";
+      } else {
+        return "A";
+      }
+
+    case "II":
+      if (kmh <= 21) {
+        return "F";
+      } else if (kmh > 21 && kmh <= 26) {
+        return "E";
+      } else if (kmh > 26 && kmh <= 33) {
+        return "D";
+      } else if (kmh > 33 && kmh <= 46) {
+        return "C";
+      } else if (kmh > 46 && kmh <= 59) {
+        return "B";
+      } else {
+        return "A";
+      }
+
+    case "III":
+      if (kmh <= 17) {
+        return "F";
+      } else if (kmh > 17 && kmh <= 22) {
+        return "E";
+      } else if (kmh > 22 && kmh <= 28) {
+        return "D";
+      } else if (kmh > 28 && kmh <= 39) {
+        return "C";
+      } else if (kmh > 39 && kmh <= 50) {
+        return "B";
+      } else {
+        return "A";
+      }
+
+    case "IV":
+      if (kmh <= 14) {
+        return "F";
+      } else if (kmh > 14 && kmh <= 18) {
+        return "E";
+      } else if (kmh > 18 && kmh <= 23) {
+        return "D";
+      } else if (kmh > 23 && kmh <= 32) {
+        return "C";
+      } else if (kmh > 32 && kmh <= 41) {
+        return "B";
+      } else {
+        return "A";
+      }
+  }
+};
+
+const getLaneWidth = (roadType) => {
+  switch (roadType) {
+    case "residential": // Drogi lokalne
+    case "service":
+      return 2.75;
+    case "primary": // Drogi główne, arterie miejskie
+    case "secondary":
+      return 3.25;
+    case "motorway": // Drogi ekspresowe, autostrady
+    case "trunk":
+      return 3.5;
+    default:
+      return 3.0; // Domyślna wartość dla innych dróg
+  }
+};
+
+const getNumberOfLanes = async (lat, lon) => {
+  const overpassUrl = "http://overpass-api.de/api/interpreter";
+
+  const query = `
+    [out:json];
+    way(around:50, ${lat}, ${lon})["highway"]["lanes"];
+    out body;
+    `;
+
+  try {
+    const response = await api.post(overpassUrl, query, {
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+    const data = response.data.elements;
+    if (data.length > 0) {
+      const tags = data[0].tags;
+      const laneWidth = getLaneWidth(tags.highway || "default");
+      return { ...tags, laneWidth };
+    } else {
+      return {
+        maxspeed: 50,
+        highway: "default",
+        lanes: 1,
+        surface: "asphalt",
+        name: "Nieznana",
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return 1;
+  }
+};
+
+export const calculateLoadIndicator = (el, cVeh, type) => {
+  // Dane dotyczące pasażerów
+  const totalBusPerDay = 1239232;
+  const totalTramPerDay = 681929;
+  const totalPassengersPerDay = totalBusPerDay + totalTramPerDay;
+
+  const percentageOfTram = totalTramPerDay / totalPassengersPerDay;
+  const percentageOfBus = totalBusPerDay / totalPassengersPerDay;
+
+  const population = el.population_density * el.area;
+  const avg_population = population * 0.65; // 65% populacji korzysta z transportu publicznego
+
+  let avg_population_for_tram = avg_population * percentageOfTram;
+  let avg_population_for_bus = avg_population * percentageOfBus;
+
+  avg_population_for_bus = Math.round(avg_population_for_bus);
+  avg_population_for_tram = Math.round(avg_population_for_tram);
+
+  const operationHours = 18;
+  let popBusHour = Math.round(avg_population_for_bus / operationHours);
+  let popTramHour = Math.round(avg_population_for_tram / operationHours);
+
+  // Pobieranie aktualnego współczynnika zatłoczenia
+  const crowdingFactor = getCrowdingFactor();
+
+  // Obliczanie liczby pasażerów uwzględniając współczynnik zatłoczenia
+  const adjustedBusPassengers = popBusHour * crowdingFactor;
+  const adjustedTramPassengers = popTramHour * crowdingFactor;
+
+  // Obliczanie współczynnika zatłoczenia dla autobusów i tramwajów
+  let loadIndicator = 0;
+
+  if (type == "Autobus") {
+    loadIndicator = (adjustedBusPassengers / cVeh) * 100;
+    return {
+      loadIndicator,
+      adjustedPassengers: adjustedBusPassengers,
+      avgPopulation: avg_population_for_bus,
+    };
+  } else {
+    loadIndicator = (adjustedTramPassengers / cVeh) * 100;
+    return {
+      loadIndicator,
+      adjustedPassengers: adjustedTramPassengers,
+      avgPopulation: avg_population_for_tram,
+    };
+  }
+};
+
+export const getCrowdingFactor = () => {
+  const hour = new Date().getHours();
+
+  if (hour >= 6 && hour < 9) {
+    return 1.2;
+  } else if (hour >= 9 && hour < 15) {
+    return 0.8;
+  } else if (hour >= 15 && hour < 18) {
+    return 1.5;
+  } else if (hour >= 18 && hour < 21) {
+    return 1.0;
+  } else {
+    return 0.5;
+  }
+};
+
 const getCoords = async (type, string, districts) => {
   let url = "";
 
@@ -203,6 +358,8 @@ const getCoords = async (type, string, districts) => {
   } else {
     url = "/route/v1/walk/" + string + "?overview=full&geometries=geojson";
   }
+
+  const strSplit = string.split(";");
 
   try {
     let r;
@@ -219,42 +376,92 @@ const getCoords = async (type, string, districts) => {
 
     if (
       r.data.routes &&
-      r.data.routes &&
       r.data.routes.length > 0 &&
       r.data.routes[0].geometry &&
       r.data.routes[0].geometry.coordinates
     ) {
       const latLngs = r.data.routes[0].geometry.coordinates;
+      let previousTags = null;
 
-      const ready = latLngs.map((coord, index) => {
-        const point = { latitude: coord[1], longitude: coord[0] };
-        let districtInfo = { name: "Poza Warszawą", population_density: 400 };
+      const ready = await Promise.all(
+        latLngs.map(async (coord, index) => {
+          const point = { latitude: coord[1], longitude: coord[0] };
+          let districtInfo = {
+            name: "Poza Warszawą",
+            population_density: 400,
+            area: 3,
+          };
+
+          for (const district of districts) {
+            if (isPointInPolygon(point, district.border_coords)) {
+              districtInfo = {
+                name: district.name,
+                population_density: district.population_density,
+                area: district.area,
+              };
+              break;
+            }
+          }
+
+          if (index % 10 === 0 || index === latLngs.length - 1) {
+            const tags = await getNumberOfLanes(
+              point.latitude,
+              point.longitude
+            );
+            // const tags = null;
+            previousTags = tags; // Przechowujemy tagi, aby użyć w kolejnych krokach
+          }
+
+          return {
+            latitude: point.latitude,
+            longitude: point.longitude,
+            order: index,
+            name: districtInfo.name,
+            population_density: districtInfo.population_density,
+            area: districtInfo.area,
+            tags: previousTags, // Używamy obecnych lub ostatnich pobranych tagów
+          };
+        })
+      );
+
+      // Sprawdzamy, czy ostatnie elementy mają przypisane tagi
+      for (
+        let i = latLngs.length - (latLngs.length % 10);
+        i < latLngs.length;
+        i++
+      ) {
+        if (!ready[i].tags) {
+          ready[i].tags = previousTags;
+        }
+      }
+
+      const other_info = r.data.routes[0].legs.map((el, index) => {
+        const coords = strSplit[index].split(",");
+
+        const point = { latitude: coords[1], longitude: coords[0] };
+        let districtInfo = {
+          name: "Poza Warszawą",
+          population_density: 400,
+          area: 3,
+        };
 
         for (const district of districts) {
           if (isPointInPolygon(point, district.border_coords)) {
             districtInfo = {
               name: district.name,
               population_density: district.population_density,
+              area: district.area,
             };
             break;
           }
         }
 
         return {
-          latitude: point.latitude,
-          longitude: point.longitude,
-          order: index,
-          name: districtInfo.name,
-          population_density: districtInfo.population_density,
-        };
-      });
-
-      const other_info = r.data.routes[0].legs.map((el, index) => {
-        return {
           order: index,
           distance: el.distance,
           duration: el.duration,
           weight: el.weight,
+          ...districtInfo,
         };
       });
 
@@ -328,6 +535,7 @@ export const getRoutes = async (dispatch, vehicle, trace, stops, districts) => {
       );
     } else {
       console.log("coś nie tak");
+      return null;
     }
   } catch (error) {
     console.log(error);
