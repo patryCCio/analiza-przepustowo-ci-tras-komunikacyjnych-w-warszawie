@@ -30,14 +30,17 @@ const home = () => {
         dispatch(setVehicles(result.data));
       }
 
-      if (stops.length == 0) {
-        const result = await api.get("stops/all");
-        dispatch(setStops(result.data));
-      }
+      let districtsAll;
 
       if (districts.length == 0) {
         const result = await api.get("districts/districts-info");
         dispatch(setDistricts(result.data));
+        districtsAll = result.data;
+      }
+
+      if (stops.length == 0) {
+        const result = await api.post("stops/all", { districts: districtsAll });
+        dispatch(setStops(result.data));
       }
     } catch (error) {
       console.log(error);

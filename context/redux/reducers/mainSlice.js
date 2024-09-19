@@ -6,7 +6,6 @@ export const mainSlice = createSlice({
     stops: [],
     districts: [],
     vehicles: [],
-    traffic_flow: [],
 
     accidents: [],
     anomalies: [],
@@ -225,9 +224,6 @@ export const mainSlice = createSlice({
 
       state.vehicles = array;
     },
-    setTrafficFlow: (state, action) => {
-      state.traffic_flow = action.payload;
-    },
     setAccidents: (state, action) => {
       state.accidents = action.payload;
     },
@@ -251,7 +247,6 @@ export const {
   setAllActivesFalse,
   setTimetable,
   setTracesFromFullData,
-  setTrafficFlow,
   setVehiclesSegments,
   setAccidents,
   setAnomalies,

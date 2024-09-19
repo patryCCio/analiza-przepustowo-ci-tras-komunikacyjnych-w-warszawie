@@ -44,6 +44,7 @@ export const MapContextProvider = ({ children }) => {
 
   const [analizeEl, setAnalizeEl] = useState(null);
 
+
   const startIntervalMain = async () => {
     if (!isLocationActive) {
       let dd = await getLocation();

@@ -15,6 +15,7 @@ const Diagrams = ({
   data8,
   data9,
   data10,
+  data11
 }) => {
   return (
     <>
@@ -382,6 +383,37 @@ const Diagrams = ({
         </>
       )}
 
+      {actualDiagramIndex == 0 && type == "cVehS" && (
+        <>
+          {actualTime == 0 && (
+            <BarMulti
+              suffix="veh/h"
+              data={data11.data_0}
+              d={actualTime}
+              textDiagram={"Przepustowość pojazdu (aktualnie)"}
+            />
+          )}
+
+          {actualTime == 1 && (
+            <BarMulti
+              suffix="veh/h"
+              data={data11.data_1}
+              d={actualTime}
+              textDiagram={"Przepustowość pojazdu (za 15 min)"}
+            />
+          )}
+
+          {actualTime == 2 && (
+            <BarMulti
+              suffix="veh/h"
+              data={data11.data_2}
+              d={actualTime}
+              textDiagram={"Przepustowość pojazdu (za 30 min)"}
+            />
+          )}
+        </>
+      )}
+
       {actualDiagramIndex == 1 && type == "speed" && (
         <>
           {actualTime == 0 && (
@@ -740,6 +772,43 @@ const Diagrams = ({
               d={actualTime}
               textDiagram={
                 "Prędkość rzeczywista pomiędzy przystankami (za 30 min)"
+              }
+            />
+          )}
+        </>
+      )}
+
+      {actualDiagramIndex == 1 && type == "cVehS" && (
+        <>
+          {actualTime == 0 && (
+            <LineMulti
+              suffix="veh/h"
+              data={data11.data_0}
+              d={actualTime}
+              textDiagram={
+                "Przepustowość pojazdu (aktualnie)"
+              }
+            />
+          )}
+
+          {actualTime == 1 && (
+            <LineMulti
+              suffix="veh/h"
+              data={data11.data_1}
+              d={actualTime}
+              textDiagram={
+                "Przepustowość pojazdu (za 15 min)"
+              }
+            />
+          )}
+
+          {actualTime == 2 && (
+            <LineMulti
+              suffix="veh/h"
+              data={data11.data_2}
+              d={actualTime}
+              textDiagram={
+                "Przepustowość pojazdu (za 30 min)"
               }
             />
           )}

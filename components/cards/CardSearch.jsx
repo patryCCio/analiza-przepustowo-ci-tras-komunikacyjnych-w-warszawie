@@ -115,7 +115,7 @@ const CardSearch = () => {
   };
 
   const searchForTraces = async () => {
-    // setLoading(true);
+    setLoading(true);
     setWalk(false);
     if (localizationOption) {
       const res = await getLocation();
